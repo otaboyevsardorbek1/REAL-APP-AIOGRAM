@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="svn" />
+    <mapping directory="$PROJECT_DIR$/aiogram-shop-bot" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/aiogram-tests-shablon-v3.15" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/online-shop-bot-pro" vcs="Git" />
+  </component>
+</project>

@@ -1,0 +1,53 @@
+CREATE TABLE users (
+    tg_id BIGINT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    logo TEXT,
+    whatsapp VARCHAR(20),
+    telegram VARCHAR(100),
+    is_active BOOLEAN DEFAULT true,
+    sub_start TIMESTAMP,
+    sub_end TIMESTAMP,
+    storage_used BIGINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    tg_id BIGINT NOT NULL REFERENCES users(tg_id) ON DELETE CASCADE,
+    category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,
+    name VARCHAR(100) NOT NULL,
+    price NUMERIC(12,2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    tg_id BIGINT NOT NULL REFERENCES users(tg_id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    icon_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(tg_id, name)
+);
+
+CREATE TABLE characteristics (
+    id BIGSERIAL PRIMARY KEY,                         -- ID характеристики
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE, -- Товар
+    character_title TEXT NOT NULL,                    -- Название характеристики (напр. Цвет)
+    character_value TEXT NOT NULL,                    -- Значение (напр. Чёрный)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP    -- Дата добавления
+);
+
+
+CREATE TABLE product_images (
+    id BIGSERIAL PRIMARY KEY,                         -- ID изображения
+    product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE, -- Ссылка на товар
+    url TEXT NOT NULL,                                -- URL изображения
+    size BIGINT NOT NULL,                             -- Размер изображения (в байтах)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP    -- Дата загрузки изображения
+);
+
+
+CREATE TABLE admins (
+    id BIGSERIAL PRIMARY KEY,                         -- ID администратора
+    tg_id BIGINT UNIQUE NOT NULL                      -- Telegram ID
+);
