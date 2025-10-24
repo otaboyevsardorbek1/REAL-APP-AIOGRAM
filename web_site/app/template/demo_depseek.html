@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevMarket - Dasturchilar Bozori</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #94a3b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 0.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-links a i {
+            margin-right: 0.5rem;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+        }
+        
+        .auth-buttons a {
+            margin-left: 1rem;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        
+        .login-btn {
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .register-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            display: none;
+            z-index: 10;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .dropdown-menu a {
+            display: block;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            color: var(--dark);
+            transition: background 0.3s;
+        }
+        
+        .dropdown-menu a:hover {
+            background: var(--light);
+        }
+        
+        /* Hero section */
+        .hero {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+        }
+        
+        .search-bar input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+        
+        .search-bar button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 1.5rem;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: white;
+            color: var(--primary);
+            padding: 0.8rem 2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s;
+            margin-top: 1.5rem;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+        }
+        
+        /* Categories section */
+        .categories {
+            padding: 3rem 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            color: var(--dark);
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .category-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            text-align: center;
+            padding: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .category-card h3 {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Products section */
+        .products {
+            padding: 3rem 0;
+            background-color: white;
+        }
+        
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .product-card {
+            background-color: var(--light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            height: 180px;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+            position: relative;
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .product-info {
+            padding: 1rem;
+        }
+        
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .product-description {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: -webkit-box;
+            /* -webkit-line-clamp: 2; */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .product-price {
+            color: var(--primary);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .product-seller {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .product-seller i {
+            margin-right: 0.5rem;
+        }
+        
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--secondary);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* Product detail */
+        .product-detail {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .product-gallery {
+            background: var(--light);
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+        }
+        
+        .product-meta {
+            margin-top: 1.5rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            margin-bottom: 0.5rem;
+        }
+        
+        .meta-label {
+            font-weight: 500;
+            width: 120px;
+        }
+        
+        .seller-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .seller-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .seller-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        /* Cart */
+        .cart-items {
+            margin-bottom: 2rem;
+        }
+        
+        .cart-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--gray);
+        }
+        
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background: var(--light);
+            border-radius: 4px;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary);
+        }
+        
+        .cart-item-details {
+            flex: 1;
+        }
+        
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .cart-item-price {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        
+        .cart-item-remove {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+        }
+        
+        .cart-summary {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .summary-total {
+            font-weight: 700;
+            font-size: 1.2rem;
+            border-top: 1px solid var(--gray);
+            padding-top: 1rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 1rem;
+            border-top: 1px solid #334155;
+            color: #94a3b8;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                margin: 1rem 0;
+            }
+            
+            .auth-buttons {
+                margin-top: 1rem;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .product-detail {
+                grid-template-columns: 1fr;
+            }
+            
+            .products-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filters {
+                margin-top: 1rem;
+                width: 100%;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header section -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <i class="fas fa-laptop-code"></i>
+                    DevMarket
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#"><i class="fas fa-home"></i> Bosh sahifa</a></li>
+                    <li><a href="#products"><i class="fas fa-project-diagram"></i> Loyihalar</a></li>
+                    <li><a href="#"><i class="fas fa-laptop"></i> Texnika</a></li>
+                    <li><a href="#"><i class="fas fa-microchip"></i> Komponentlar</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <div class="user-menu">
+                        <div class="user-avatar" id="userMenuToggle">A</div>
+                        <div class="dropdown-menu" id="userDropdown">
+                            <a href="#"><i class="fas fa-user"></i> Mening profilim</a>
+                            <a href="#"><i class="fas fa-shopping-cart"></i> Savatcha</a>
+                            <a href="#"><i class="fas fa-heart"></i> Sevimlilar</a>
+                            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Chiqish</a>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary" id="addProductBtn"><i class="fas fa-plus"></i> Mahsulot qo'shish</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Dasturchilar uchun barcha kerakli narsalar bir joyda</h1>
+            <p>Dasturiy loyihalaringizni sotishingiz yoki sotib olishingiz, dasturlash uchun kerakli texnika va komponentlarni topishingiz mumkin</p>
+            <div class="search-bar">
+                <input type="text" placeholder="Qidirish... (masalan, React loyiha, MacBook Pro)">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+            <a href="#products" class="cta-button">Platformani ko'rish</a>
+        </div>
+    </section>
+
+    <!-- Categories section -->
+    <section class="categories">
+        <div class="container">
+            <h2 class="section-title">Kategoriyalar</h2>
+            <div class="category-grid">
+                <div class="category-card" data-category="projects">
+                    <div class="category-icon"><i class="fas fa-project-diagram"></i></div>
+                    <h3>Dasturiy Loyihalar</h3>
+                    <p>Tayyor dasturlar, veb-saytlar, mobil ilovalar va boshqa dasturiy mahsulotlar</p>
+                </div>
+                <div class="category-card" data-category="hardware">
+                    <div class="category-icon"><i class="fas fa-laptop"></i></div>
+                    <h3>Kompyuter Texnikasi</h3>
+                    <p>Noutbuklar, kompyuterlar, monitorlar va boshqa dasturlash uchun zarur texnika</p>
+                </div>
+                <div class="category-card" data-category="components">
+                    <div class="category-icon"><i class="fas fa-microchip"></i></div>
+                    <h3>Komponentlar</h3>
+                    <p>Protsessorlar, videokartalar, xotiralar va boshqa kompyuter qismlari</p>
+                </div>
+                <div class="category-card" data-category="accessories">
+                    <div class="category-icon"><i class="fas fa-keyboard"></i></div>
+                    <h3>Aksessuarlar</h3>
+                    <p>Klaviaturalar, sichqonchalar, stollar va boshqa dasturlash muhiti uchun aksessuarlar</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products section -->
+    <section class="products" id="products">
+        <div class="container">
+            <div class="products-header">
+                <h2 class="section-title">Mashhur Mahsulotlar</h2>
+                <div class="filters">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="all">Barcha kategoriyalar</option>
+                        <option value="projects">Dasturiy loyihalar</option>
+                        <option value="hardware">Kompyuter texnikasi</option>
+                        <option value="components">Komponentlar</option>
+                        <option value="accessories">Aksessuarlar</option>
+                    </select>
+                    <select class="filter-select" id="sortFilter">
+                        <option value="newest">Yangi</option>
+                        <option value="price-low">Arzon</option>
+                        <option value="price-high">Qimmat</option>
+                        <option value="popular">Mashhur</option>
+                    </select>
+                </div>
+            </div>
+            <div class="product-grid" id="productGrid">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>DevMarket</h3>
+                    <p>Dasturchilar uchun barcha kerakli narsalar bir joyda</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Kategoriyalar</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Dasturiy Loyihalar</a></li>
+                        <li><a href="#">Kompyuter Texnikasi</a></li>
+                        <li><a href="#">Komponentlar</a></li>
+                        <li><a href="#">Aksessuarlar</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Yordam</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Qanday sotaman?</a></li>
+                        <li><a href="#">Qanday sotib olaman?</a></li>
+                        <li><a href="#">Xavfsizlik qoidalari</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Bog'lanish</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Biz haqimizda</a></li>
+                        <li><a href="#">Aloqa</a></li>
+                        <li><a href="#">Shartlar va sharoitlar</a></li>
+                        <li><a href="#">Maxfiylik siyosati</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2023 DevMarket. Barcha huquqlar himoyalangan.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Product Detail Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mahsulot tafsilotlari</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-detail">
+                    <div class="product-gallery">
+                        <i class="fas fa-image fa-3x"></i>
+                    </div>
+                    <div class="product-info">
+                        <h1 id="modalProductTitle">Mahsulot nomi</h1>
+                        <p class="product-price" id="modalProductPrice">$0</p>
+                        <p id="modalProductDescription">Mahsulot tavsifi</p>
+                        
+                        <div class="product-meta">
+                            <div class="meta-item">
+                                <span class="meta-label">Kategoriya:</span>
+                                <span id="modalProductCategory">-</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Holati:</span>
+                                <span id="modalProductCondition">-</span>
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-label">Qo'shilgan:</span>
+                                <span id="modalProductDate">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button class="btn btn-primary" id="addToCartBtn"><i class="fas fa-shopping-cart"></i> Savatchaga qo'shish</button>
+                            <button class="btn btn-outline" id="addToFavoritesBtn"><i class="far fa-heart"></i> Sevimlilar</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="seller-card">
+                    <div class="seller-header">
+                        <div class="seller-avatar">A</div>
+                        <div>
+                            <h3 id="modalSellerName">Azizbek R.</h3>
+                            <p>Platforma a'zosi: 2022 yildan</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline"><i class="fas fa-envelope"></i> Xabar yuborish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal" id="addProductModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Yangi mahsulot qo'shish</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <div class="form-group">
+                        <label for="productName">Mahsulot nomi</label>
+                        <input type="text" id="productName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCategory">Kategoriya</label>
+                        <select id="productCategory" class="form-control" required>
+                            <option value="">Tanlang</option>
+                            <option value="projects">Dasturiy loyihalar</option>
+                            <option value="hardware">Kompyuter texnikasi</option>
+                            <option value="components">Komponentlar</option>
+                            <option value="accessories">Aksessuarlar</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPrice">Narxi ($)</label>
+                        <input type="number" id="productPrice" class="form-control" min="0" step="0.01" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Tavsif</label>
+                        <textarea id="productDescription" class="form-control" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productCondition">Holati</label>
+                        <select id="productCondition" class="form-control" required>
+                            <option value="">Tanlang</option>
+                            <option value="new">Yangi</option>
+                            <option value="used">Ishlatilgan</option>
+                            <option value="refurbished">Qayta tiklanga</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Mahsulotni qo'shish</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Mening savatcham</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cart-items" id="cartItems">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Mahsulotlar:</span>
+                        <span id="cartSubtotal">$0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Yetkazib berish:</span>
+                        <span>$10</span>
+                    </div>
+                    <div class="summary-row summary-total">
+                        <span>Jami:</span>
+                        <span id="cartTotal">$0</span>
+                    </div>
+                    
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Buyurtma berish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for products
+        const products = [
+            {
+                id: 1,
+                title: "E-ticaret veb-sayti",
+                description: "React va Node.js asosida yaratilgan to'liq funksional elektron tijorat veb-sayti. Admin paneli, to'lov tizimi va mobil moslashuvli dizayn.",
+                price: 500,
+                category: "projects",
+                condition: "new",
+                seller: "Azizbek R.",
+                date: "2023-10-15",
+                badge: "Yangi"
+            },
+            {
+                id: 2,
+                title: "MacBook Pro M1",
+                description: "2022 yilgi MacBook Pro M1 protsessori, 16GB RAM, 512GB SSD. Ideal dasturlash uchun. Holati a'lo.",
+                price: 1200,
+                category: "hardware",
+                condition: "used",
+                seller: "DasturTexnika",
+                date: "2023-10-10",
+                badge: "Sotuvda"
+            },
+            {
+                id: 3,
+                title: "RTX 3080 Videokarta",
+                description: "NVIDIA GeForce RTX 3080 10GB. O'yin va grafik dasturlash uchun a'lo. 6 oy ishlatilgan, kafolati bor.",
+                price: 700,
+                category: "components",
+                condition: "used",
+                seller: "Komponentlar Bozori",
+                date: "2023-10-05",
+                badge: "Tejanging"
+            },
+            {
+                id: 4,
+                title: "Mobil Ilova UI Kit",
+                description: "Figma uchun tayyor UI komponentlari to'plami. React Native va Flutter loyihalari uchun moslashtirilgan.",
+                price: 150,
+                category: "projects",
+                condition: "new",
+                seller: "Dizayn Studio",
+                date: "2023-09-28",
+                badge: "Yangi"
+            },
+            {
+                id: 5,
+                title: "Mechanical Klaviatura",
+                description: "RGB yoritilgan mechanical klaviatura, Cherry MX Brown kalitlar. Dasturlash uchun ideal.",
+                price: 120,
+                category: "accessories",
+                condition: "new",
+                seller: "Aksessuarlar Markazi",
+                date: "2023-10-12",
+                badge: "Chegirma"
+            },
+            {
+                id: 6,
+                title: "Python Django Loyihasi",
+                description: "Tayyor CRM tizimi Django va PostgreSQL bilan. Barcha manba kodlari bilan birga.",
+                price: 350,
+                category: "projects",
+                condition: "new",
+                seller: "PythonDev",
+                date: "2023-10-08",
+                badge: "Yangi"
+            }
+        ];
+
+        // Cart data
+        let cart = [];
+
+        // DOM elements
+        const productGrid = document.getElementById('productGrid');
+        const productModal = document.getElementById('productModal');
+        const addProductModal = document.getElementById('addProductModal');
+        const cartModal = document.getElementById('cartModal');
+        const userDropdown = document.getElementById('userDropdown');
+        const userMenuToggle = document.getElementById('userMenuToggle');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const addProductForm = document.getElementById('addProductForm');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const cartItems = document.getElementById('cartItems');
+        const cartSubtotal = document.getElementById('cartSubtotal');
+        const cartTotal = document.getElementById('cartTotal');
+
+        // Initialize the app
+        function init() {
+            renderProducts(products);
+            setupEventListeners();
+            loadCartFromStorage();
+        }
+
+        // Render products to the grid
+        function renderProducts(productsToRender) {
+            productGrid.innerHTML = '';
+            
+            productsToRender.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <div class="product-badge">${product.badge}</div>
+                        <i class="fas fa-${getProductIcon(product.category)} fa-3x"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.title}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">$${product.price}</div>
+                        <div class="product-seller">
+                            <i class="fas fa-user"></i> ${product.seller}
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary add-to-cart" data-id="${product.id}">
+                                <i class="fas fa-shopping-cart"></i> Savatga
+                            </button>
+                            <button class="btn btn-outline view-details" data-id="${product.id}">
+                                <i class="fas fa-eye"></i> Ko'rish
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productGrid.appendChild(productCard);
+            });
+            
+            // Add event listeners to the new buttons
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.closest('.view-details').dataset.id);
+                    openProductModal(productId);
+                });
+            });
+            
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.closest('.add-to-cart').dataset.id);
+                    addToCart(productId);
+                });
+            });
+        }
+
+        // Get appropriate icon for product category
+        function getProductIcon(category) {
+            switch(category) {
+                case 'projects': return 'project-diagram';
+                case 'hardware': return 'laptop';
+                case 'components': return 'microchip';
+                case 'accessories': return 'keyboard';
+                default: return 'box';
+            }
+        }
+
+        // Open product detail modal
+        function openProductModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            document.getElementById('modalProductTitle').textContent = product.title;
+            document.getElementById('modalProductPrice').textContent = `$${product.price}`;
+            document.getElementById('modalProductDescription').textContent = product.description;
+            document.getElementById('modalProductCategory').textContent = getCategoryName(product.category);
+            document.getElementById('modalProductCondition').textContent = getConditionName(product.condition);
+            document.getElementById('modalProductDate').textContent = product.date;
+            document.getElementById('modalSellerName').textContent = product.seller;
+            
+            // Set up add to cart button in modal
+            document.getElementById('addToCartBtn').onclick = () => {
+                addToCart(productId);
+                closeModal(productModal);
+            };
+            
+            openModal(productModal);
+        }
+
+        // Get category name in Uzbek
+        function getCategoryName(category) {
+            switch(category) {
+                case 'projects': return 'Dasturiy loyihalar';
+                case 'hardware': return 'Kompyuter texnikasi';
+                case 'components': return 'Komponentlar';
+                case 'accessories': return 'Aksessuarlar';
+                default: return category;
+            }
+        }
+
+        // Get condition name in Uzbek
+        function getConditionName(condition) {
+            switch(condition) {
+                case 'new': return 'Yangi';
+                case 'used': return 'Ishlatilgan';
+                case 'refurbished': return 'Qayta tiklanga';
+                default: return condition;
+            }
+        }
+
+        // Add product to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    title: product.title,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            updateCart();
+            saveCartToStorage();
+            
+            // Show notification
+            alert(`${product.title} savatchaga qo'shildi!`);
+        }
+
+        // Update cart UI
+        function updateCart() {
+            cartItems.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p>Savatchangiz bo\'sh</p>';
+                cartSubtotal.textContent = '$0';
+                cartTotal.textContent = '$10';
+                return;
+            }
+            
+            let subtotal = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div class="cart-item-image">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-title">${item.title}</div>
+                        <div class="cart-item-price">$${item.price} x ${item.quantity}</div>
+                    </div>
+                    <button class="cart-item-remove" data-id="${item.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+            
+            // Add event listeners to remove buttons
+            document.querySelectorAll('.cart-item-remove').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const productId = parseInt(e.target.closest('.cart-item-remove').dataset.id);
+                    removeFromCart(productId);
+                });
+            });
+            
+            cartSubtotal.textContent = `$${subtotal}`;
+            cartTotal.textContent = `$${subtotal + 10}`;
+        }
+
+        // Remove item from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCart();
+            saveCartToStorage();
+        }
+
+        // Save cart to localStorage
+        function saveCartToStorage() {
+            localStorage.setItem('devmarket_cart', JSON.stringify(cart));
+        }
+
+        // Load cart from localStorage
+        function loadCartFromStorage() {
+            const savedCart = localStorage.getItem('devmarket_cart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCart();
+            }
+        }
+
+        // Open modal
+        function openModal(modal) {
+            modal.classList.add('show');
+        }
+
+        // Close modal
+        function closeModal(modal) {
+            modal.classList.remove('show');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // User menu toggle
+            userMenuToggle.addEventListener('click', () => {
+                userDropdown.classList.toggle('show');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.user-menu')) {
+                    userDropdown.classList.remove('show');
+                }
+            });
+
+            // Add product button
+            addProductBtn.addEventListener('click', () => {
+                openModal(addProductModal);
+            });
+
+            // Close modals
+            document.querySelectorAll('.close-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modal = e.target.closest('.modal');
+                    closeModal(modal);
+                });
+            });
+
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal(modal);
+                    }
+                });
+            });
+
+            // Add product form submission
+            addProductForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('productName').value;
+                const category = document.getElementById('productCategory').value;
+                const price = parseFloat(document.getElementById('productPrice').value);
+                const description = document.getElementById('productDescription').value;
+                const condition = document.getElementById('productCondition').value;
+                
+                // Generate a new product ID
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                
+                // Add the new product
+                products.unshift({
+                    id: newId,
+                    title: name,
+                    description: description,
+                    price: price,
+                    category: category,
+                    condition: condition,
+                    seller: "Azizbek R.",
+                    date: new Date().toISOString().split('T')[0],
+                    badge: "Yangi"
+                });
+                
+                // Re-render products
+                renderProducts(products);
+                
+                // Close modal and reset form
+                closeModal(addProductModal);
+                addProductForm.reset();
+                
+                alert('Mahsulot muvaffaqiyatli qo\'shildi!');
+            });
+
+            // Category filter
+            categoryFilter.addEventListener('change', () => {
+                filterAndSortProducts();
+            });
+
+            // Sort filter
+            sortFilter.addEventListener('change', () => {
+                filterAndSortProducts();
+            });
+
+            // Category cards
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const category = card.dataset.category;
+                    categoryFilter.value = category;
+                    filterAndSortProducts();
+                });
+            });
+        }
+
+        // Filter and sort products
+        function filterAndSortProducts() {
+            const category = categoryFilter.value;
+            const sort = sortFilter.value;
+            
+            let filteredProducts = products;
+            
+            // Filter by category
+            if (category !== 'all') {
+                filteredProducts = products.filter(product => product.category === category);
+            }
+            
+            // Sort products
+            switch(sort) {
+                case 'price-low':
+                    filteredProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-high':
+                    filteredProducts.sort((a, b) => b.price - a.price);
+                    break;
+                case 'popular':
+                    // For demo, we'll sort by ID (newest first)
+                    filteredProducts.sort((a, b) => b.id - a.id);
+                    break;
+                case 'newest':
+                default:
+                    filteredProducts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    break;
+            }
+            
+            renderProducts(filteredProducts);
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
