@@ -80,6 +80,7 @@ async def cmd_restart(message: types.Message):
 @dp.message(Message(text="execv"))
 @dp.message(Message(text="subprocess"))
 @dp.message(Message(text="both"))
+
 async def handle_restart_choice(message: types.Message):
     user_choice = message.text.strip()
 
