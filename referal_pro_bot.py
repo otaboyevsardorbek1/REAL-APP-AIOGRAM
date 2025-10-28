@@ -1,6 +1,9 @@
 import os
 import sys
 import asyncio
+import io
+import csv
+import tempfile
 from datetime import datetime
 from typing import Optional, List
 
@@ -20,7 +23,6 @@ from aiogram.types import Message, FSInputFile, InlineKeyboardMarkup, InlineKeyb
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramUnauthorizedError
 from aiogram.enums import ParseMode
-
 
 # SQLAlchemy async
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -99,15 +101,22 @@ class Transaction(Base):
     note = Column(String, nullable=True)
 
 # -----------------------
-# BOT SETUP
+# BOT SETUP - TO'G'RILANGAN
 # -----------------------
 if not BOT_TOKEN:
     logger.warning("BOT_TOKEN not set. Set BOT_TOKEN env var before running.")
-bot = Bot(token=BOT_TOKEN,default=DefaultBotProperties(parse_mode="HTML"))
-storage = MemoryStorage()
-dp = Dispatcher(storage=storage)
-router = Router()
-dp.include_router(router)
+    sys.exit(1)
+
+try:
+    bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    storage = MemoryStorage()
+    dp = Dispatcher(storage=storage)
+    router = Router()
+    dp.include_router(router)
+    logger.info("Bot va Dispatcher muvaffaqiyatli yaratildi")
+except Exception as e:
+    logger.error(f"Bot yaratishda xato: {e}")
+    sys.exit(1)
 
 # -----------------------
 # DB helpers
@@ -297,7 +306,6 @@ async def process_withdraw(tx_id: int, admin_tid: int, approve: bool, note: Opti
             return "declined"
 
 # CSV export helper (will be used by admin)
-import io, csv, tempfile
 async def export_withdraws_csv() -> Optional[str]:
     pending = await list_pending_withdrawals()
     if not pending:
@@ -344,7 +352,7 @@ async def notify_owners_startup():
 async def notify_owners_shutdown():
     for owner in ALL_OWNER_IDS:
         try:
-            await bot.send_message(owner, f"⚠️ Bot to‘xtadi — {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} (UTC)", disable_notification=True)
+            await bot.send_message(owner, f"⚠️ Bot to'xtadi — {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} (UTC)", disable_notification=True)
         except Exception:
             logger.exception("notify owners shutdown failed")
 
@@ -355,11 +363,6 @@ async def error_handler(update: types.Update, exception: Exception):
             await bot.send_message(owner, f"❗ Xato yuz berdi:\n{exception}\nUpdate: {update}")
         except Exception:
             pass
-
-dp.errors.register(error_handler)
-dp.startup.register(create_db)
-dp.startup.register(notify_owners_startup)
-dp.shutdown.register(notify_owners_shutdown)
 
 # -----------------------
 # PUBLIC HANDLERS
@@ -753,9 +756,8 @@ async def set_owner_commands():
     except Exception:
         logger.exception("set_owner_commands failed")
 
-
 # -----------------------
-# MAIN
+# MAIN - TO'G'RILANGAN
 # -----------------------
 async def check_bot_token() -> bool:
     try:
@@ -769,26 +771,37 @@ async def check_bot_token() -> bool:
         logger.exception("Bot get_me() xato berdi: %s", e)
         return False
 
-# main() ichida:
 async def main():
     if not BOT_TOKEN:
         logger.error("Please set BOT_TOKEN env var.")
         return
 
+    # Avval tokenni tekshiramiz
     ok = await check_bot_token()
     if not ok:
         logger.error("Bot token invalid — dastur to'xtatildi.")
         return
 
-    await create_db()
+    # Keyin handlerlarni registratsiya qilamiz
+    dp.errors.register(error_handler)
+    dp.startup.register(create_db)
+    dp.startup.register(notify_owners_startup)
+    dp.shutdown.register(notify_owners_shutdown)
+
     await set_owner_commands()
     logger.info("Bot launching...")
+    
     try:
         await dp.start_polling(bot)
+    except Exception as e:
+        logger.error(f"Pollingda xato: {e}")
     finally:
         await bot.session.close()
 
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
-
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("Bot to'xtatildi")
+    except Exception as e:
+        logger.error(f"Asosiy dasturda xato: {e}")
