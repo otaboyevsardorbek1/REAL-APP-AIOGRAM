@@ -445,7 +445,6 @@ async def get_user_profile_photo(message: Message):
             text=f"{bot_username}\n\n" + caption,
             parse_mode=ParseMode.HTML
         )
-# ERROR_TO_ADMIN_SEND()
 # ✅ Bot log faylini yuborish va tozalash
 @dp.message(Command("log"))
 async def send_log(message: types.Message):
