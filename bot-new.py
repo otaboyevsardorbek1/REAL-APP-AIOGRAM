@@ -13,11 +13,12 @@ from aiogram.types import Message
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BotCommand, BotCommandScopeChat,FSInputFile
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.client.default import DefaultBotProperties
+from bot_new_error import ErrorReporterMiddleware
 from sqlalchemy import Column, Integer, String, select, func
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-#===local==settings
+#===local==settings===
 LOG_FILE = "bot.log"
 BOT_TOKEN = "8425142685:AAH_RIP1J4kbuqQtoS5M3a_QQNpfPCV-byI"
 MAX_LOG_SIZE_MB=20
@@ -75,10 +76,7 @@ async def on_shutdown_notify(bot: Bot):
             ),
             disable_notification=True
         )
-
-# async def ERROR_TO_ADMIN_SEND(update: types.Update, exception: Exception):
-#     for chat_id in OWNER_ID:
-#         await bot.send_message(chat_id, f"Xato yuz berdi: {exception}\nUpdate: {update}")
+dp.message.middleware.register(ErrorReporterMiddleware(bot, OWNER_ID))
 
 async def nofactins_admin():
     # dp.errors.register(ERROR_TO_ADMIN_SEND)   # xatolarni qayd qilish
