@@ -45,45 +45,11 @@ def loggers(log_name):
     return logger
 # =======logerr=set===
 loggeradmin=loggers(log_name="Panel")
-
-# === admin or owner send run or stop bot info
-date_now = time.strftime("%Y-%m-%d", time.localtime())
-time_now = time.strftime("%H:%M:%S", time.localtime())
-
-async def on_startup_notify(bot: Bot):
-    loggeradmin.info("Adminga habar berish jarayoni boshlandi")
-    for admin in OWNER_ID:
-        await bot.send_message(
-            admin,
-            text=(
-                f"✅Bot ishga tushdi!✅\n"
-                f"📅Mon: {date_now}\n"
-                f"⏰Vaqt: {time_now}\n"
-            ),
-            disable_notification=True
-        )
-
-async def on_shutdown_notify(bot: Bot):
-    loggeradmin.info("Bot to‘xtab qolganda adminga xabar berish")
-    for admin in OWNER_ID:
-        await bot.send_message(
-            admin,
-            text=(
-                "Bot ishdan chiqdi\n"
-                f"📅Mon: {date_now}\n"
-                f"⏰Vaqt: {time_now}\n"
-                "Sababini /log buyrug‘i orqali ko‘rib olishingiz mumkin!"
-            ),
-            disable_notification=True
-        )
-dp.message.middleware.register(ErrorReporterMiddleware(bot, OWNER_ID))
-
-async def nofactins_admin():
-    # dp.errors.register(ERROR_TO_ADMIN_SEND)   # xatolarni qayd qilish
-    dp.startup.register(on_startup_notify)    # faqat funksiya obyekti
-    dp.shutdown.register(on_shutdown_notify)  # faqat funksiya obyekti
-
-    
+# ======= Adminlarga habar jo`natish =======
+start_stop_mw = StartStopNotifyMiddleware(bot, OWNER_ID)
+# 🔹 Startup va Shutdown hodisalarini ro‘yxatga olish
+dp.startup.register(start_stop_mw.startup)
+dp.shutdown.register(start_stop_mw.shutdown)
 # ======= SQLAlchemy setup =======
 Base = declarative_base()
 engine = create_async_engine(DATABASE_URL, echo=False)
@@ -530,11 +496,9 @@ async def main():
 
        await bot.delete_webhook(drop_pending_updates=True)
        print("✅ Bot ishga tushdi")
-       await nofactins_admin()
-       print("Adminlarga habar jao`natildi.!")
        await dp.start_polling(bot)
    except (KeyboardInterrupt):
-       print("Dasturni to`xtatsingiz.!")
+       print("Dasturni to`xtatdingiz.!")
    finally:
        print("Dasturni yangilash uchun to`xtatdingizmi.!")
 

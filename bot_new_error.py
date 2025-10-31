@@ -8,9 +8,9 @@ import time
 from aiogram import BaseMiddleware, Bot
 from aiogram.dispatcher.event.bases import UNHANDLED
 from typing import Callable, Awaitable, Any, Dict
-from bot_new import loggers
+from bot_new import loggeradmin
 
-midwer_log=loggers(log_name="Midlwers")
+midwer_log=loggeradmin
 class ErrorReporterMiddleware(BaseMiddleware):
     """
     Har qanday handlerda xato yuz bersa — shu middleware uni tutadi va admin(lar)ga yuboradi.
