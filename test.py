@@ -76,7 +76,7 @@ class User(Base):
     blocked = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-class Message(Base):
+class message(Base):
     __tablename__ = "messages"
     id = Column(Integer, primary_key=True)
     sender_telegram_id = Column(Integer, nullable=False)
@@ -348,16 +348,15 @@ async def notify_owners_shutdown():
         except Exception:
             logger.exception("notify owners shutdown failed")
 
-async def error_handler(update: types.Update, exception: Exception):
-    logger.exception("Error: %s", exception)
-    for owner in ALL_OWNER_IDS:
-        try:
-            await bot.send_message(owner, f"❗ Xato yuz berdi:\n{exception}\nUpdate: {update}")
-        except Exception:
-            pass
+# async def error_handler(update: types.Update, exception: Exception):
+#     logger.exception("Error: %s", exception)
+#     for owner in ALL_OWNER_IDS:
+#         try:
+#             await bot.send_message(owner, f"❗ Xato yuz berdi:\n{exception}\nUpdate: {update}")
+#         except Exception:
+#             pass
 
-dp.errors.register(error_handler)
-dp.startup.register(create_db)
+# dp.errors.register(error_handler)
 dp.startup.register(notify_owners_startup)
 dp.shutdown.register(notify_owners_shutdown)
 

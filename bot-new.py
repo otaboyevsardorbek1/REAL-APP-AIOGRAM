@@ -19,7 +19,7 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 #===local==settings
 LOG_FILE = "bot.log"
-BOT_TOKEN = "7552988744:AAGqmvn7hb0aOnYoGRB96QziifNgVLNY7Tk"
+BOT_TOKEN = "8425142685:AAH_RIP1J4kbuqQtoS5M3a_QQNpfPCV-byI"
 MAX_LOG_SIZE_MB=20
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
@@ -43,7 +43,7 @@ def loggers(log_name):
     logger = logging.getLogger(log_name)
     return logger
 # =======logerr=set===
-loggeradmin=loggers(log_name="owner")
+loggeradmin=loggers(log_name="Panel")
 
 # === admin or owner send run or stop bot info
 date_now = time.strftime("%Y-%m-%d", time.localtime())
@@ -76,13 +76,13 @@ async def on_shutdown_notify(bot: Bot):
             disable_notification=True
         )
 
-async def ERROR_TO_ADMIN_SEND(update: types.Update, exception: Exception):
-    for chat_id in OWNER_ID:
-        await bot.send_message(chat_id, f"Xato yuz berdi: {exception}\nUpdate: {update}")
+# async def ERROR_TO_ADMIN_SEND(update: types.Update, exception: Exception):
+#     for chat_id in OWNER_ID:
+#         await bot.send_message(chat_id, f"Xato yuz berdi: {exception}\nUpdate: {update}")
 
 #Error handlerni botga qo'shish
 async def nofactins_admin():
-    dp.errors.register(ERROR_TO_ADMIN_SEND)   # xatolarni qayd qilish
+    # dp.errors.register(ERROR_TO_ADMIN_SEND)   # xatolarni qayd qilish
     dp.startup.register(on_startup_notify)    # faqat funksiya obyekti
     dp.shutdown.register(on_shutdown_notify)  # faqat funksiya obyekti
 
@@ -166,7 +166,7 @@ COMMANDS_BY_ROLE = {
         BotCommand(command="terms", description="📜 Foydalanuvchi shartlari"),
         BotCommand(command="support", description="🆘 Texnik yordam"),
         BotCommand(command="feedback", description="📝 Fikr-mulohazalar"),
-        # BotCommand(command="setrole", description="🎭 Rol berish"),
+        BotCommand(command="setrole", description="🎭 Rol berish"),
         BotCommand(command="tasks", description="🧾 Vazifalar"),
         BotCommand(command="owner", description="👤 Owner bilan bog'lanish."),
         BotCommand(command="help", description="❓ Yordam"),
@@ -178,7 +178,7 @@ COMMANDS_BY_ROLE = {
         BotCommand(command="terms", description="📜 Foydalanuvchi shartlari"),
         BotCommand(command="support", description="🆘 Texnik yordam"),
         BotCommand(command="feedback", description="📝 Fikr-mulohazalar"),
-        # BotCommand(command="setrole", description="🎭 Rol berish"),
+        BotCommand(command="setrole", description="🎭 Rol berish"),
         BotCommand(command="help", description="❓ Yordam"),
         BotCommand(command="owner", description="👤 Owner bilan bog'lanish."),
     ],
@@ -189,7 +189,7 @@ COMMANDS_BY_ROLE = {
         BotCommand(command="terms", description="📜 Foydalanuvchi shartlari"),
         BotCommand(command="support", description="🆘 Texnik yordam"),
         BotCommand(command="feedback", description="📝 Fikr-mulohazalar"),
-        # BotCommand(command="setrole", description="🎭 Rol berish"),
+        BotCommand(command="setrole", description="🎭 Rol berish"),
         BotCommand(command="owner", description="👤 Owner bilan bog'lanish."),
         BotCommand(command="help", description="❓ Yordam"),
     ],
@@ -200,7 +200,7 @@ COMMANDS_BY_ROLE = {
         BotCommand(command="terms", description="📜 Foydalanuvchi shartlari"),
         BotCommand(command="support", description="🆘 Texnik yordam"),
         BotCommand(command="feedback", description="📝 Fikr-mulohazalar"),
-        # BotCommand(command="setrole", description="🎭 Rol berish"),
+        BotCommand(command="setrole", description="🎭 Rol berish"),
         BotCommand(command="owner", description="👤 Owner bilan bog'lanish."),
         BotCommand(command="help", description="❓ Yordam"),
     ],
@@ -211,7 +211,7 @@ COMMANDS_BY_ROLE = {
         BotCommand(command="terms", description="📜 Foydalanuvchi shartlari"),
         BotCommand(command="support", description="🆘 Texnik yordam"),
         BotCommand(command="feedback", description="📝 Fikr-mulohazalar"),
-        # BotCommand(command="setrole", description="🎭 Rol berish"),
+        BotCommand(command="setrole", description="🎭 Rol berish"),
         BotCommand(command="owner", description="👤 Owner bilan bog'lanish."),
         BotCommand(command="help", description="❓ Yordam"),
     ]
@@ -244,7 +244,16 @@ async def cmd_start(message: types.Message, bot: Bot):
 async def cmd_start(message: types.Message, bot: Bot):
     user = await get_or_create_user(message.from_user.id, message.from_user.full_name)
     await set_user_commands(bot, user)
-    await message.answer(f"👋 Salom, {user.full_name}!\nSizning rol: <b>{user.role}</b>")
+    ower_str=''
+    ower_str+='Dasturchi: Otaboyev sardorbek Davronbek o`g`li\n'
+    ower_str+='tg_chanel: @otaboyev_sardorbek_blog\n'
+    ower_str+='tg_group: @otaboyev_sardorbek_support\n'
+    ower_str+='tg_username: @otaboyev_sardorbek\n'
+    ower_str+='Email:otaboyevsardorbek295@gmail.com\n'
+    if user.id not in OWNER_ID:
+        await message.answer(ower_str)
+    else:
+       return await message.answer(f"\n{user.full_name}!\nDaraja:<b>{user.role}</b> \n {ower_str}")
 
 # ======= /setrole =======
 @router.message(F.text.startswith("/setrole"))
