@@ -80,7 +80,6 @@ async def on_shutdown_notify(bot: Bot):
 #     for chat_id in OWNER_ID:
 #         await bot.send_message(chat_id, f"Xato yuz berdi: {exception}\nUpdate: {update}")
 
-#Error handlerni botga qo'shish
 async def nofactins_admin():
     # dp.errors.register(ERROR_TO_ADMIN_SEND)   # xatolarni qayd qilish
     dp.startup.register(on_startup_notify)    # faqat funksiya obyekti
