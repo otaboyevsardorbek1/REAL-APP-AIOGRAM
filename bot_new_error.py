@@ -5,12 +5,26 @@ from datetime import datetime
 from aiogram import BaseMiddleware, types, Bot
 from aiogram.exceptions import TelegramBadRequest
 import time
+import sys
+import logging
 from aiogram import BaseMiddleware, Bot
 from aiogram.dispatcher.event.bases import UNHANDLED
 from typing import Callable, Awaitable, Any, Dict
-from bot_new import loggeradmin
-
-midwer_log=loggeradmin
+LOG_FILE = "bot.log"
+# ========logging=======
+# ✅ Log sozlamalari
+def loggers(log_name):
+    logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s:%(lineno)d) - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding="utf-8"),  # Faylga yozish
+        logging.StreamHandler(sys.stdout)  # Konsolga chiqarish
+    ])
+    logger = logging.getLogger(log_name)
+    return logger
+midwer_log=loggers(log_name="Midlwers")
 class ErrorReporterMiddleware(BaseMiddleware):
     """
     Har qanday handlerda xato yuz bersa — shu middleware uni tutadi va admin(lar)ga yuboradi.
