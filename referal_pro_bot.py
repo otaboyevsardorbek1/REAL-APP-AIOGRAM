@@ -8,8 +8,8 @@ from datetime import datetime
 from typing import Optional, List
 
 # Windows asyncio policy fix
-if sys.platform.startswith("win"):
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#if sys.platform.startswith("win"):
+ #   asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # load .env if exists
 from dotenv import load_dotenv
