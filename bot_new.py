@@ -7,7 +7,6 @@ from datetime import datetime
 from aiogram import Bot, Dispatcher, F, Router, types
 from aiogram.enums import ParseMode
 import logging
-import time
 from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, BotCommand, BotCommandScopeChat,FSInputFile
@@ -45,6 +44,8 @@ def loggers(log_name):
     return logger
 # =======logerr=set===
 loggeradmin=loggers(log_name="Panel")
+# register middleware for message processing (ErrorReporter)
+dp.message.middleware(ErrorReporterMiddleware(bot, OWNER_ID))
 # ======= Adminlarga habar jo`natish =======
 start_stop_mw = StartStopNotifyMiddleware(bot, OWNER_ID)
 # 🔹 Startup va Shutdown hodisalarini ro‘yxatga olish
@@ -186,7 +187,7 @@ async def get_or_create_user(user_id: int, full_name: str) -> User:
         result = await session.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
         if not user:
-            role = "owner" if user_id == OWNER_ID else "guest"
+            role = "owner" if user_id == OWNER_ID[0] else "guest"
             user = User(id=user_id, full_name=full_name, role=role)
             session.add(user)
             await session.commit()
