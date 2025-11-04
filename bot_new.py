@@ -54,7 +54,7 @@ dp.shutdown.register(start_stop_mw.shutdown)
 # ======= SQLAlchemy setup =======
 Base = declarative_base()
 engine = create_async_engine(DATABASE_URL, echo=False)
-async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False) # type: ignore
 
 # ======= Router =======
 router = Router()
@@ -78,17 +78,17 @@ ROLE_HIERARCHY: dict[str, list[str]] = {
 }
 # ======= Rollar ierarxiyasi darajaga qarab foydalanuvchi yaratish =======
 def check_user_level_create(user: User) -> list[str]:
-    if user.role == "owner":
+    if user.role == "owner": # type: ignore
         return ROLE_HIERARCHY["owner"]
-    elif user.role == "admin":
+    elif user.role == "admin": # type: ignore
         return ROLE_HIERARCHY["admin"]
-    elif user.role == "manager":
+    elif user.role == "manager": # type: ignore
         return ROLE_HIERARCHY["manager"]
-    elif user.role == "worker":
+    elif user.role == "worker": # type: ignore
         return ROLE_HIERARCHY["worker"]
-    elif user.role == "diller":
+    elif user.role == "diller": # type: ignore
         return ROLE_HIERARCHY["diller"]
-    elif user.role == "dastafka":
+    elif user.role == "dastafka": # type: ignore
         return ROLE_HIERARCHY["dastafka"]
     else:
         return ROLE_HIERARCHY["guest"]
@@ -194,12 +194,12 @@ async def get_or_create_user(user_id: int, full_name: str) -> User:
         return user
 
 async def set_user_commands(bot: Bot, user: User):
-    commands = COMMANDS_BY_ROLE.get(user.role, COMMANDS_BY_ROLE["guest"])
+    commands = COMMANDS_BY_ROLE.get(user.role, COMMANDS_BY_ROLE["guest"]) # type: ignore
     await bot.set_my_commands(commands=commands, scope=BotCommandScopeChat(chat_id=user.id))
 
 # ======= /start =======
 @router.message(F.text == "/start")
-async def cmd_start(message: types.Message, bot: Bot):
+async def cmd_start(message: types.Message, bot: Bot): # type: ignore
     user = await get_or_create_user(message.from_user.id, message.from_user.full_name)
     await set_user_commands(bot, user)
     await message.answer(f"👋 Salom, {user.full_name}!\nSizning rol: <b>{user.role}</b>")

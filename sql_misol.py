@@ -8,15 +8,20 @@ import zipfile
 import hashlib
 from datetime import datetime
 from typing import Any, List, Tuple, Optional
+import time
+import sys
+from pyfiglet import Figlet
+from termcolor import colored
 
+def type_effect(text, color='green', delay=0.01):
+    """Matnni harflab chiqarish effekti"""
+    for ch in text:
+        sys.stdout.write(colored(ch, color))
+        sys.stdout.flush()
+        time.sleep(delay)
+    return print()
 
 class SQLController:
-    """
-    Universal SQL Controller for SQLite3
-    (Auto-backup + Delta-backup + JSON eksport/import + ZIP + parol)
-    Muallif: Sardorbek uchun GPT-5 versiyasi
-    """
-
     def __init__(self, db_name: str = "database.db", backup_dir: str = "backups"):
         self.db_name = db_name
         self.conn = sqlite3.connect(self.db_name, check_same_thread=False)
@@ -186,24 +191,34 @@ class SQLController:
 # === CLI QISMI (INTERAKTIV MIKRO-KONTROLLER) ===
 # =====================================================
 
+def animated_banner():
+    """Asosiy banner funksiyasi"""
+    f = Figlet(font='banner3-D')  # font: 'slant', 'standard', 'doom', 'banner3-D' va boshqalar
+    banner = f.renderText("SQL Platform")
+
+    # Asosiy banner
+    type_effect(banner, color='cyan', delay=0.0004)
+
+    # Pastki yozuvlar
+    type_effect("🛒 Desktop CLI versiyasi 🖥️", color='yellow', delay=0.02)
+    type_effect("🚀 100% Python | Professional Terminal Interface 🚀", color='green', delay=0.015)
+    type_effect("==============================================", color='magenta', delay=0.005)
+    print()  # Bo‘sh qatordan keyin dastur asosiy qismini boshlasangiz bo‘ladi.
+    print(f"""
+          {type_effect("1️⃣ Jadval yaratish", color='magenta', delay=0.005)}
+          {type_effect("2️⃣ Ma'lumot qo‘shish", color='magenta', delay=0.005)}
+          {type_effect("3️⃣ Ma'lumotlarni ko‘rish", color='magenta', delay=0.005)}
+          {type_effect("4️⃣ Ma'lumotni yangilash", color='magenta', delay=0.005)}
+          {type_effect("5️⃣ Ma'lumotni o‘chirish", color='magenta', delay=0.005)}
+          {type_effect("6️⃣ Bazadagi jadvallar", color='magenta', delay=0.005)}
+          {type_effect("7️⃣ Jadval tuzilmasini ko‘rish", color='magenta', delay=0.005)}
+          {type_effect("8️⃣ SQL buyruqni bevosita yozish", color='magenta', delay=0.005)}
+          {type_effect("9️⃣ JSON eksport/import", color='magenta', delay=0.005)}
+          {type_effect("🔟 Chiqish", color='magenta', delay=0.005)}""")
+
 def show_main_menu():
-    print("""
-=========================
-🧩 SQL Mikro-Kontroller Menyu
-=========================
-1️⃣ Jadval yaratish
-2️⃣ Ma'lumot qo‘shish
-3️⃣ Ma'lumotlarni ko‘rish
-4️⃣ Ma'lumotni yangilash
-5️⃣ Ma'lumotni o‘chirish
-6️⃣ Bazadagi jadvallar
-7️⃣ Jadval tuzilmasini ko‘rish
-8️⃣ SQL buyruqni bevosita yozish
-9️⃣ JSON eksport/import
-🔟 Chiqish
-""")
-
-
+    animated_banner()
+    
 def create_default_table(db: SQLController):
     db.execute("""
     CREATE TABLE IF NOT EXISTS users (
@@ -221,7 +236,7 @@ def insert_data(db: SQLController):
     if balance.strip() == "":
         db.execute("INSERT INTO users (name) VALUES (?)", (name,))
     else:
-        db.execute("INSERT INTO users (name, balance) VALUES (?, ?)", (name, float(balance)))
+        db.execute("INSERT INTO users (name, balance) VALUES (?, ?)", (name, float(balance))) # type: ignore
     print(f"✅ '{name}' foydalanuvchi qo‘shildi.")
 
 
@@ -237,7 +252,7 @@ def view_data(db: SQLController):
 def update_data(db: SQLController):
     uid = input("🆔 ID: ")
     new_balance = input("💰 Yangi balans: ")
-    db.execute("UPDATE users SET balance=? WHERE id=?", (float(new_balance), int(uid)))
+    db.execute("UPDATE users SET balance=? WHERE id=?", (float(new_balance), int(uid))) # type: ignore
     print("✅ Balans yangilandi.")
 
 
@@ -295,6 +310,8 @@ def main():
         elif choice == "6":
             print(db.show_tables())
         elif choice == "7":
+            print("Jadval tuzilmasini ko‘rish:")
+            print("Mavjud jadvallar :", db.show_tables())
             db.describe_table(input("Jadval nomi: "))
         elif choice == "8":
             run_raw_query(db)
