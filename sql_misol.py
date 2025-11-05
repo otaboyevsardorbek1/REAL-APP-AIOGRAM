@@ -11,12 +11,6 @@ from typing import Any, List, Tuple, Optional
 
 
 class SQLController:
-    """
-    Universal SQL Controller for SQLite3
-    (Auto-backup + Delta-backup + JSON eksport/import + ZIP + parol)
-    Muallif: Sardorbek uchun GPT-5 versiyasi
-    """
-
     def __init__(self, db_name: str = "database.db", backup_dir: str = "backups"):
         self.db_name = db_name
         self.conn = sqlite3.connect(self.db_name, check_same_thread=False)
