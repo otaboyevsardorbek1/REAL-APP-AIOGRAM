@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.dispatcher import FSMContext
-from main import dp, db
+from set_webhook_admin import dp, db
 from db.models import Product, ProductImage, Characteristic
 
 @dp.message_handler(commands=["my_products"])

@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command
-from main import dp, db
+from set_webhook_admin import dp, db
 from db.models import Product, Category
 from sqlalchemy import func
 

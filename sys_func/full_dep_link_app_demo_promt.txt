@@ -1,0 +1,1963 @@
+Otaboyev Sardorbek, [05.11.2025 12:15]
+Men qanday qilib aiogramning ichki moduli yani dep link orqali katta va uzun holatda ishlaydigan va murakkab dep link yaratib undan foydalanishim mumkun
+ChatGPT said:
+Zo‘r savol! 😎
+Keling, buni bosqichma-bosqich tushuntiraman — qanday qilib aiogram ichida deep link (start parametri orqali) yaratish, uni murakkab ma’lumotlarni uzatish uchun ishlatish, va decode qilish mumkin.
+
+🎯 1. Deep link nima?
+Telegram botda start parametri orqali foydalanuvchini biror maxsus sahifa yoki holatga yo‘naltirish mumkin:
+
+https://t.me/<bot_username>?start=<parametr>
+Misol:
+
+https://t.me/my_bot?start=abc123
+abc123 — bu siz yuboradigan ma’lumot (masalan, foydalanuvchini taklif qilgan ID, yoki murakkab JSON ma’lumotlar).
+
+⚙️ 2. Aiogram yordamida ishlatish (misol uchun aiogram v3)
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import decode_payload, create_start_link
+import asyncio
+import json
+
+bot = Bot(token="YOUR_TOKEN")
+dp = Dispatcher()
+
+@dp.message(CommandStart(deep_link=True))
+async def start_handler(message: types.Message, command: CommandStart):
+    if command.args:
+        data = decode_payload(command.args)
+        # Decode qilingan ma’lumot (JSON string bo‘lsa, uni parse qilamiz)
+        try:
+            data = json.loads(data)
+        except:
+            pass
+        await message.answer(f"Sizning dep-link ma’lumotingiz:\n<code>{data}</code>")
+    else:
+        await message.answer("Oddiy /start buyrug‘i.")
+
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+🔗 3. Uzun yoki murakkab deep link yaratish
+Agar siz bir nechta qiymat, yoki murakkab ma’lumot (dict) uzatmoqchi bo‘lsangiz, ularni JSON formatda kodlab, so‘ng base64 orqali kodlashingiz kerak.
+
+Masalan:
+from aiogram.utils.deep_linking import create_start_link
+import json
+
+async def create_complex_link(bot):
+    payload = {
+        "ref_id": 12345,
+        "plan": "premium",
+        "extra": {"lang": "uz", "utm": "telegram_ad_001"}
+    }
+
+    # JSON formatga o'tkazish
+    payload_str = json.dumps(payload)
+
+    link = await create_start_link(bot, payload_str)
+    print("Sizning murakkab dep-linkingiz:")
+    print(link)
+Natija (taxminan):
+
+https://t.me/my_bot?start=eyJyZWZfaWQiOiAxMjM0NSwgInBsYW4iOiAicHJlbWl1bSIsICJleHRyYSI6IHsibGFuZyI6ICJ1eiIsICJ1dG0iOiAidGVsZWdyYW1fYWRfMDAxIn19
+🧠 4. Qabul qilish tarafida uni decode qilish
+Yuqoridagi start_handler misolida decode_payload() orqali bu ma’lumotni qayta ochish mumkin.
+Shundan keyin uni json.loads() bilan Python dict ga aylantirasiz.
+
+💡 Qo‘shimcha maslahatlar
+URL uzunligi limiti — Telegram’da start parametri 64 belgidan oshmasligi kerak.
+Shuning uchun murakkab ma’lumotlar uchun:
+
+short_id yoki uuid ishlatib,
+
+asosiy ma’lumotni server yoki bazada saqlang.
+
+Deep link orqali faqat key yuboring.
+
+Serverdagi yondashuv (tavsiya qilinadi):
+
+# Deep link: https://t.me/my_bot?start=ref123
+# Bazada ref123 -> {"user": 145, "campaign": "promo_5"} saqlanadi
+Aiogram v2.x da ham o‘xshash ishlaydi, faqat deep_linking funksiyalari boshqa joyda (aiogram.utils.deep_linking) bo‘ladi.
+
+Agar xohlasangiz, sizga to‘liq ishlaydigan namunaviy kod yozib beraman:
+✅ Deep link yaratish
+✅ Ma’lumotni decode qilish
+✅ Baza bilan ishlaydigan variant
+
+Siz qaysi versiyani ishlatyapsiz: aiogram 2.x yoki aiogram 3.x?
+Shunga qarab to‘liq kodni moslab yozaman.
+
+You said:
+Men aiogram V3. X Dan foydalanaman va murakkab sep link namunasini yozib ber
+ChatGPT said:
+Ajoyib! 🔥
+Demak siz aiogram v3.x dan foydalanayapsiz — bu holda biz zamonaviy Router, CommandStart, va create_start_link funksiyalaridan foydalanamiz.
+
+Quyida murakkab (JSON shaklidagi) ma’lumotni uzatadigan to‘liq ishlaydigan deep link (start link) namunasi keltirilgan.
+
+🚀 To‘liq namunaviy kod (main.py)
+import asyncio
+import json
+from aiogram import Bot, Dispatcher, types, Router
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
+
+# --- BOT SETUP ---
+TOKEN = "YOUR_BOT_TOKEN"  # o'z tokeningizni yozing
+bot = Bot(token=TOKEN, parse_m
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+ode="HTML")
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
+
+
+# --- DEEP LINK YARATISH (murakkab ma'lumot bilan) ---
+@router.message(commands=["generate"])
+async def generate_deeplink(message: types.Message):
+    """Foydalanuvchi uchun murakkab deep-link yaratish"""
+    # Murakkab ma'lumot (JSON shaklida)
+    payload = {
+        "ref_id": message.from_user.id,
+        "plan": "premium",
+        "utm": "telegram_ad_001",
+        "extra": {"lang": "uz", "feature": "new_onboarding"},
+    }
+
+    # JSON stringga aylantiramiz
+    payload_str = json.dumps(payload)
+
+    # Deep link yaratamiz
+    link = await create_start_link(bot, payload_str, encode=True)
+    await message.answer(f"Mana sizning murakkab deep-linkingiz:\n\n{link}")
+
+
+# --- DEEP LINK QABUL QILISH ( /start orqali ) ---
+@router.message(CommandStart(deep_link=True))
+async def start_handler(message: types.Message, command: CommandStart):
+    """Foydalanuvchi deep-link orqali kirganda"""
+    if command.args:
+        try:
+            # Base64 decode
+            decoded = decode_payload(command.args)
+            # JSON ni Python dict ga parse qilamiz
+            data = json.loads(decoded)
+
+            await message.answer(
+                "<b>Siz deep-link orqali kirdingiz!</b>\n\n"
+                f"<b>Ref ID:</b> {data.get('ref_id')}\n"
+                f"<b>Tarif:</b> {data.get('plan')}\n"
+                f"<b>UTM:</b> {data.get('utm')}\n"
+                f"<b>Qo'shimcha:</b> {data.get('extra')}"
+            )
+        except Exception as e:
+            await message.answer(f"Xatolik: {e}")
+    else:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i 🙂")
+
+
+# --- POLLING ---
+async def main():
+    print("Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+🧩 Qanday ishlaydi?
+Siz botga /generate yuborasiz.
+→ Bot sizga murakkab JSON ma’lumotni o‘z ichiga olgan deep link yaratib beradi.
+
+Masalan:
+
+https://t.me/my_bot?start=eyJyZWZfaWQiOiAxMjM0NSwgInBsYW4iOiAicHJlbWl1bSIsICJ1dG0iOiAidGVsZWdyYW1fYWRfMDAxIiwiZXh0cmEiOiB7ImxhbmciOiAidXoiLCAiZmVhdHVyZSI6ICJuZXdfb25ib2FyZGluZyJ9fQ
+Siz (yoki foydalanuvchi) shu linkni bosasiz.
+→ /start <payload> bilan botga kiriladi.
+
+start_handler funksiyasi command.args orqali bu ma’lumotni oladi, decode_payload bilan ochadi, json.loads() bilan dict ga aylantiradi, va foydalanuvchiga chiqadi.
+
+⚠️ Muhim eslatmalar
+Telegram start parametri 64 belgigacha bo‘lishi kerak, lekin create_start_link(..., encode=True) parametri Base64 orqali siqilgan ma’lumotni beradi — odatda bu sig‘adi.
+Juda katta JSON yubormang.
+
+Agar sizga haqiqatan katta ma’lumot uzatish kerak bo‘lsa — id yoki token yuborib, ma’lumotni bazada saqlash variantini ishlating.
+
+Xohlaysizmi, shu kodga SQLite bilan bazada deep link ma’lumotini saqlaydigan versiya ham yozib beray?
+U holda siz cheklanmagan hajmdagi ma’lumot bilan deep-link ishlatishingiz mumkin.
+
+You said:
+Men id va loginni yuborishim mumkunmi masalan maxsulot id va order log id misolida 
+ChatGPT said:
+Ha, albatta mumkin! 🔥
+Bu eng to‘g‘ri va tavsiya etilgan yondashuv — murakkab JSON yuborish o‘rniga siz oddiy idlar (masalan, product_id, order_log_id) ni deep link orqali yuborasiz.
+
+Keling, bu holatni to‘liq va amaliy misol bilan tushuntiraman 👇
+
+🎯 Maqsad
+Sizda mahsulot bor (product_id=123), va sizga kerak:
+👉 https://t.me/<bot_username>?start=product_123_order_9876
+ko‘rinishida link yaratish,
+👉 foydalanuvchi shu linkni bossa, bot u product_id va order_log_id ni ajratib olishini bilsin.
+
+⚙️ To‘liq Aiogram v3.x kodi
+import asyncio
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
+
+TOKEN = "YOUR_BOT_TOKEN"
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
+
+
+# --- Deep Link yaratish ---
+@router.message(commands=["link"])
+async def generate_link(message: types.Message):
+    """
+    Mahsulot ID va Order Log ID asosida deep link yaratish.
+    Masalan: /link 123 9876
+    """
+    try:
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+args = message.text.split()
+        if len(args) < 3:
+            await message.answer("❗ Foydalanish: <code>/link product_id order_log_id</code>")
+            return
+
+        product_id = args[1]
+        order_log_id = args[2]
+
+        # Payload — siz istagan ma’lumot
+        payload = f"{product_id}_{order_log_id}"
+
+        # Deep link yaratish
+        deep_link = await create_start_link(bot, payload, encode=True)
+
+        await message.answer(
+            f"✅ Sizning maxsus deep-linkingiz:\n\n"
+            f"<a href='{deep_link}'>Bosish uchun shu yerni bosing</a>\n\n"
+            f"<b>Payload:</b> <code>{payload}</code>"
+        )
+    except Exception as e:
+        await message.answer(f"Xatolik: {e}")
+
+
+# --- Deep Link orqali kirganda ---
+@router.message(CommandStart(deep_link=True))
+async def start_handler(message: types.Message, command: CommandStart):
+    """
+    /start <payload> orqali kirganda product_id va order_log_id ni ajratish
+    """
+    if command.args:
+        decoded = decode_payload(command.args)
+        try:
+            product_id, order_log_id = decoded.split("_")
+            await message.answer(
+                f"🛒 Siz deep-link orqali kirdingiz!\n\n"
+                f"<b>Mahsulot ID:</b> {product_id}\n"
+                f"<b>Order Log ID:</b> {order_log_id}"
+            )
+        except ValueError:
+            await message.answer(f"⚠️ Noto‘g‘ri payload: <code>{decoded}</code>")
+    else:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i 🙂")
+
+
+# --- Polling ---
+async def main():
+    print("Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+🧩 Qanday ishlaydi:
+1️⃣ Siz /link 123 9876 yuborasiz
+→ Bot product_id=123, order_log_id=9876 dan payload = "123_9876" yasaydi
+→ Deep link yaratadi:
+
+https://t.me/YourBot?start=MTIzXzk4NzY
+2️⃣ Foydalanuvchi shu linkni bosadi
+→ /start MTIzXzk4NzY bilan botga kiriladi
+→ decode_payload() orqali “123_9876” ochiladi
+→ split("_") orqali ikkita qiymat ajratiladi
+→ Natija chiqadi:
+
+🛒 Siz deep-link orqali kirdingiz!
+Mahsulot ID: 123
+Order Log ID: 9876
+⚡️ Qo‘shimcha maslahatlar:
+Agar sizga qo‘shimcha ma’lumot kerak bo‘lsa (masalan, user_id, campaign), payloadni kengaytirish mumkin:
+
+payload = f"{product_id}_{order_log_id}_{user_id}"
+Keyin split("_") bilan ajratib olasiz.
+
+Yoki yanada ishonchli variant — bu ma’lumotni bazaga saqlab, payloadga faqat bitta “token” yuborish:
+
+payload = f"key_{unique_id}"
+So‘ngra foydalanuvchi deep-link orqali kirganda, siz unique_id bo‘yicha bazadan product/order ma’lumotini olasiz.
+(Bu katta tizimlar uchun tavsiya etiladi.)
+
+Xohlaysizmi, shu kodga SQLite bilan ishlaydigan, ya’ni product/order ma’lumotini bazadan olib keladigan professional versiyasini ham yozib beray?
+Shunda siz to‘liq tizim darajasida deep link orqali buyurtma tizimini qura olasiz.
+
+You said:
+Ha imkon boricha murakkab sep link sxemasi va maʼlumotlar bazasi SQLCHEMIY orqali ishlaydigan boʻlsin
+ChatGPT said:
+Zo‘r! 🔥 Endi siz professional darajadagi murakkab deep-link (start parametri orqali) sxemani ko‘rasiz — bu yerda:
+
+✅ Aiogram v3.x ishlatiladi
+✅ Ma’lumotlar SQLAlchemy (async) orqali saqlanadi
+✅ Deep link foydalanuvchiga product_id, order_log_id yoki hatto boshqa ma’lumotlarni yuborish uchun ishlatiladi
+✅ Telegramdagi deep link orqali foydalanuvchi kirganda — ma’lumot bazadan olinadi
+
+🧠 Tuzilishi
+Biz quyidagilarni qilamiz:
+
+📂 bot/
+ ├── main.py              # Asosiy bot kodi
+ ├── db.py                # SQLAlchemy bilan bog‘lanish
+ └── models.py            # Jadval modellari
+⚙️ models.py – SQLAlchemy modeli
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import Mapped, mapped_column, declarative_base
+from sqlalchemy import Integer, String, ForeignKey
+
+Base = declarative_base(cls=AsyncAttrs)
+
+class OrderLink(Base):
+    __tablename__ = "order_links"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    unique_key: Mapped[str] = mapped_column(String, unique=True)
+    product_id: Mapped[int] = mapped_column(Integer)
+    order_log_id: Mapped[int] = mapp
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+ed_column(Integer)
+    created_by: Mapped[int] = mapped_column(Integer)
+⚙️ db.py – Bazaga ulanish
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from models import Base
+
+DATABASE_URL = "sqlite+aiosqlite:///bot_data.db"  # SQLite (async variant)
+
+engine = create_async_engine(DATABASE_URL, echo=False)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+async def get_session() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+🤖 main.py – Bot logikasi (Aiogram v3)
+import asyncio
+import secrets
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
+from sqlalchemy import select
+from db import init_db, get_session
+from models import OrderLink
+
+TOKEN = "YOUR_BOT_TOKEN"
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
+
+
+# 🔹 /generate — yangi deep-link yaratish
+@router.message(commands=["generate"])
+async def generate_link(message: types.Message):
+    """
+    Foydalanuvchi product_id va order_log_id asosida deep link yaratadi.
+    Masalan: /generate 123 9876
+    """
+    try:
+        args = message.text.split()
+        if len(args) < 3:
+            await message.answer("❗ Foydalanish: /generate <product_id> <order_log_id>")
+            return
+
+        product_id = int(args[1])
+        order_log_id = int(args[2])
+        created_by = message.from_user.id
+
+        # Ma’lumotlar bazasiga saqlanadigan noyob key
+        unique_key = secrets.token_urlsafe(8)
+
+        # DBga yozish
+        async for session in get_session():
+            new_entry = OrderLink(
+                unique_key=unique_key,
+                product_id=product_id,
+                order_log_id=order_log_id,
+                created_by=created_by,
+            )
+            session.add(new_entry)
+            await session.commit()
+
+        # Deep link yaratish (unique_key ni payload sifatida yuboramiz)
+        deep_link = await create_start_link(bot, unique_key, encode=True)
+        await message.answer(
+            f"✅ Deep link yaratildi!\n\n"
+            f"<b>Product ID:</b> {product_id}\n"
+            f"<b>Order Log ID:</b> {order_log_id}\n\n"
+            f"<a href='{deep_link}'>Linkni bosish uchun shu yerga bosing</a>"
+        )
+
+    except Exception as e:
+        await message.answer(f"Xatolik: {e}")
+
+
+# 🔹 /start <payload> orqali deep-linkni ishlatish
+@router.message(CommandStart(deep_link=True))
+async def start_deeplink(message: types.Message, command: CommandStart):
+    """Foydalanuvchi deep-link orqali kirganda"""
+    if not command.args:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i.")
+        return
+
+    try:
+        decoded = decode_payload(command.args)
+        async for session in get_session():
+            # Bazadan unique_key bo‘yicha qidiramiz
+            result = await session.execute(
+                select(OrderLink).where(OrderLink.unique_key == decoded)
+            )
+            order_link = result.scalar_one_or_none()
+
+            if order_link:
+                await message.answer(
+                    f"🛒 <b>Siz maxsus link orqali kirdingiz!</b>\n\n"
+                    f"<b>Product ID:</b> {order_link.product_id}\n"
+                    f"<b>Order Log ID:</b> {order_link.order_log_id}\n"
+                    f"<b>Yaratilgan foydalanuvchi:</b> {order_link.created_by}"
+                )
+            else:
+                await message.answer("⚠️ Bu link endi mavjud emas yoki noto‘g‘ri.")
+    except Exception as e:
+        await message.answer(f"Xatolik: {e}")
+
+
+# 🔹 Botni ishga tushirish
+async def main():
+    await init_db()
+    print("✅ Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+🔍 Ishlash prinsipi:
+1️⃣ Siz /generate 123 9876 yuborasiz
+Bot bazada quyidagi yozuvni yaratadi:
+
+unique_key = "A9x2JK3sdQ"
+produc
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+t_id = 123
+order_log_id = 9876
+created_by = 77777777 (foydalanuvchi ID)
+So‘ngra https://t.me/MyBot?start=A9x2JK3sdQ ko‘rinishidagi deep linkni qaytaradi.
+
+2️⃣ Foydalanuvchi shu linkni bosadi
+/start <payload> orqali botga kiradi
+
+payload = A9x2JK3sdQ ni decode_payload() ochadi
+
+Bot bazadan shu unique_keyni topadi
+
+product_id va order_log_id ni foydalanuvchiga chiqaradi
+
+🧠 Afzalliklari
+✅ Deep link juda qisqa — faqat token (A9x2JK3sdQ)
+✅ Ma’lumot xavfsiz, chunki haqiqiy ma’lumotlar bazada saqlanadi
+✅ Har bir linkni foydalanuvchi bilan bog‘lash mumkin
+✅ SQLAlchemy orqali async ishlash (tez va zamonaviy)
+
+⚡ Qo‘shimcha rivojlantirish g‘oyalari
+Agar xohlasangiz, quyidagilarni qo‘shish mumkin:
+
+Deep linkni bir martalik qilish (is_used flag qo‘shish)
+
+Har bir bosilgan deep linkni loglash
+
+Ma’lumotlarni PostgreSQL yoki MySQL da saqlash
+
+Admin panel orqali deep linklar ro‘yxatini ko‘rish
+
+Xohlaysizmi, men shu kodga “bir martalik deep link” (ya’ni ishlatilgandan keyin avtomatik o‘chadigan) qo‘shimchasini yozib beray?
+Bu real loyihalarda xavfsizlik uchun juda foydali bo‘ladi.
+
+You said:
+Ha bir martalik deplink namunasini qoʻshib ber
+ChatGPT said:
+Zo‘r! 💪
+Endi biz oldingi SQLAlchemy + Aiogram v3 deep-link sxemasiga
+✅ bir martalik ishlatiladigan deep link (one-time link) funksiyasini qo‘shamiz.
+
+Bunda deep link:
+
+faqat bir marta ishlaydi;
+
+foydalanuvchi uni bosgach, bazada is_used=True bo‘ladi;
+
+agar kimdir linkni ikkinchi marta ishlatmoqchi bo‘lsa — bot “link ishlatilgan” deb javob beradi.
+
+🧩 Yakuniy, professional main.py kodi
+import asyncio
+import secrets
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
+from sqlalchemy import select, update
+from db import init_db, get_session
+from models import OrderLink
+
+TOKEN = "YOUR_BOT_TOKEN"
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
+
+
+# 🔹 /generate — yangi deep-link yaratish
+@router.message(commands=["generate"])
+async def generate_link(message: types.Message):
+    """
+    Yangi deep link yaratadi:
+    /generate <product_id> <order_log_id>
+    """
+    try:
+        args = message.text.split()
+        if len(args) < 3:
+            await message.answer("❗ Foydalanish: /generate <product_id> <order_log_id>")
+            return
+
+        product_id = int(args[1])
+        order_log_id = int(args[2])
+        created_by = message.from_user.id
+
+        # Noyob identifikator (payload)
+        unique_key = secrets.token_urlsafe(8)
+
+        # Bazaga yozamiz
+        async for session in get_session():
+            new_entry = OrderLink(
+                unique_key=unique_key,
+                product_id=product_id,
+                order_log_id=order_log_id,
+                created_by=created_by,
+                is_used=False
+            )
+            session.add(new_entry)
+            await session.commit()
+
+        # Deep link yaratish
+        deep_link = await create_start_link(bot, unique_key, encode=True)
+        await message.answer(
+            f"✅ Bir martalik deep-link yaratildi!\n\n"
+            f"<b>Product ID:</b> {product_id}\n"
+            f"<b>Order Log ID:</b> {order_log_id}\n\n"
+            f"<a href='{deep_link}'>👉 Linkni bosish uchun shu yerga bosing</a>"
+        )
+
+    except Exception as e:
+        await message.answer(f"Xatolik: {e}")
+
+
+# 🔹 /start <payload> — foydalanuvchi deep-link orqali kirganda
+@router.message(CommandStart(deep_link=True))
+async def start_deeplink(message: types.Message, command: CommandStart):
+    """Foydalanuvchi deep link orqali kirganda"""
+    if not command.args:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i 🙂")
+        return
+
+    try:
+        decoded = decode_payload(command.args)
+
+        async for session in get_session():
+            # Bazadan linkni qidiramiz
+            result = await session.execute(
+                select(OrderLink).where(OrderLink.unique_key == decoded)
+            )
+            order_link = result.scalar_one_or_none()
+
+            if not ord
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+er_link:
+                await message.answer("⚠️ Bunday deep link mavjud emas.")
+                return
+
+            # Agar allaqachon ishlatilgan bo‘lsa
+            if order_link.is_used:
+                await message.answer("🚫 Bu link allaqachon ishlatilgan!")
+                return
+
+            # Bir martalik link — endi uni ishlatilgan deb belgilaymiz
+            await session.execute(
+                update(OrderLink)
+                .where(OrderLink.id == order_link.id)
+                .values(is_used=True)
+            )
+            await session.commit()
+
+            await message.answer(
+                f"🎉 Siz deep-link orqali kirdingiz!\n\n"
+                f"<b>Product ID:</b> {order_link.product_id}\n"
+                f"<b>Order Log ID:</b> {order_link.order_log_id}\n"
+                f"<b>Yaratilgan foydalanuvchi:</b> {order_link.created_by}\n\n"
+                f"✅ Bu link endi ishlatilgan deb belgilandi."
+            )
+
+    except Exception as e:
+        await message.answer(f"Xatolik: {e}")
+
+
+# 🔹 Botni ishga tushirish
+async def main():
+    await init_db()
+    print("✅ Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+⚙️ models.py (yangilangan)
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import Mapped, mapped_column, declarative_base
+from sqlalchemy import Integer, String, Boolean
+
+Base = declarative_base(cls=AsyncAttrs)
+
+class OrderLink(Base):
+    __tablename__ = "order_links"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    unique_key: Mapped[str] = mapped_column(String, unique=True)
+    product_id: Mapped[int] = mapped_column(Integer)
+    order_log_id: Mapped[int] = mapped_column(Integer)
+    created_by: Mapped[int] = mapped_column(Integer)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+⚙️ db.py (o‘zgarmagan)
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from models import Base
+
+DATABASE_URL = "sqlite+aiosqlite:///bot_data.db"
+
+engine = create_async_engine(DATABASE_URL, echo=False)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+async def get_session() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+🧩 Qanday ishlaydi
+1️⃣ /generate 123 9876
+Bot bazada quyidagi yozuvni yaratadi:
+
+unique_key = "ABC123xyz"
+product_id = 123
+order_log_id = 9876
+is_used = False
+Sizga https://t.me/YourBot?start=ABC123xyz ko‘rinishidagi bir martalik link yuboradi.
+
+2️⃣ Foydalanuvchi shu linkni bosadi:
+Bot bazadan unique_key ni topadi.
+
+is_used = False bo‘lsa → ishlaydi va keyin True qilib belgilaydi.
+
+Agar keyingi safar shu link bosilsa → “🚫 Link allaqachon ishlatilgan” deb javob beradi.
+
+⚡ Afzalliklari
+✅ Har bir deep-link bir marta ishlatiladi
+✅ Ma’lumotlar xavfsiz — faqat unique_key yuboriladi
+✅ SQLAlchemy orqali asinxron, real bazaviy boshqaruv
+✅ Har bir linkni foydalanuvchi bilan bog‘lash mumkin
+
+Xohlaysizmi, shu tizimga linklar statistikasi (qancha ishlatilgan, kim yaratgan, qachon ishlatilgan) uchun qo‘shimcha created_at va used_at ustunlarini ham qo‘shib beray?
+Bu bilan siz “deep-link tahlil” (analytics) funksiyasini ham olasiz.
+
+You said:
+Ha menga statistika kerak
+ChatGPT said:
+Zo‘r! 🚀
+Endi siz haqiqiy deep-link boshqaruv tizimiga ega bo‘lasiz:
+✅ Aiogram v3
+✅ SQLAlchemy (async)
+✅ Bir martalik deep-link
+✅ Statistika (yaratilgan va ishlatilgan vaqtlar)
+
+📦 Yakuniy professional tizim tuzilmasi
+📂 bot/
+ ├── main.py        # Aiogram logikasi
+ ├── db.py          # SQLAlchemy ulanishi
+ └── models.py      # Model va struktura
+⚙️ models.py — model (statistika qo‘shilgan)
+from datetime import datetime
+from sqlalchemy.ext.asyncio import AsyncAttrs
+from sqlalchemy.orm import Mapped, mapped_column, declarative_base
+from sqlalchemy import Integer, String, Boolean, DateTime
+
+Base = declarative_base(cls=AsyncAttrs)
+
+class OrderLink(Base):
+    __tablename__ = "order_links"
+
+    id: Mapped[i
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+nt] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    unique_key: Mapped[str] = mapped_column(String, unique=True)
+    product_id: Mapped[int] = mapped_column(Integer)
+    order_log_id: Mapped[int] = mapped_column(Integer)
+    created_by: Mapped[int] = mapped_column(Integer)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+⚙️ db.py — baza ulanishi
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from models import Base
+
+DATABASE_URL = "sqlite+aiosqlite:///bot_data.db"
+
+engine = create_async_engine(DATABASE_URL, echo=False)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+async def get_session() -> AsyncSession:
+    async with SessionLocal() as session:
+        yield session
+🤖 main.py — Aiogram logikasi (statistika bilan)
+import asyncio
+import secrets
+from datetime import datetime
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
+from sqlalchemy import select, update, func
+from db import init_db, get_session
+from models import OrderLink
+
+TOKEN = "YOUR_BOT_TOKEN"
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
+
+
+# 🔹 /generate — yangi deep-link yaratish
+@router.message(commands=["generate"])
+async def generate_link(message: types.Message):
+    """Yangi bir martalik deep-link yaratadi"""
+    args = message.text.split()
+    if len(args) < 3:
+        await message.answer("❗ Foydalanish: /generate <product_id> <order_log_id>")
+        return
+
+    product_id = int(args[1])
+    order_log_id = int(args[2])
+    created_by = message.from_user.id
+    unique_key = secrets.token_urlsafe(8)
+
+    async for session in get_session():
+        new_link = OrderLink(
+            unique_key=unique_key,
+            product_id=product_id,
+            order_log_id=order_log_id,
+            created_by=created_by,
+        )
+        session.add(new_link)
+        await session.commit()
+
+    deep_link = await create_start_link(bot, unique_key, encode=True)
+    await message.answer(
+        f"✅ Bir martalik deep-link yaratildi!\n\n"
+        f"<b>Product ID:</b> {product_id}\n"
+        f"<b>Order Log ID:</b> {order_log_id}\n"
+        f"<b>Yaratgan foydalanuvchi:</b> {created_by}\n\n"
+        f"<a href='{deep_link}'>👉 Linkni bosish uchun shu yerga bosing</a>"
+    )
+
+
+# 🔹 /start <payload> — foydalanuvchi deep-link orqali kirganda
+@router.message(CommandStart(deep_link=True))
+async def start_deeplink(message: types.Message, command: CommandStart):
+    """Deep-link orqali kirish"""
+    if not command.args:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i 🙂")
+        return
+
+    decoded = decode_payload(command.args)
+    async for session in get_session():
+        result = await session.execute(select(OrderLink).where(OrderLink.unique_key == decoded))
+        order_link = result.scalar_one_or_none()
+
+        if not order_link:
+            await message.answer("⚠️ Bunday deep-link mavjud emas.")
+            return
+
+        if order_link.is_used:
+            await message.answer(
+                "🚫 Bu link allaqachon ishlatilgan!\n\n"
+                f"<b>Ishtirokchi:</b> {order_link.created_by}\n"
+                f"<b>Product ID:</b> {order_link.product_id}\n"
+                f"<b>Order ID:</b> {order_link.order_log_id}\n"
+                f"<b>Ishlatilgan vaqt:</b> {order_link.used_at}"
+            )
+            return
+
+        # Linkni ishlatilgan deb belgilaymiz
+        await session.execute(
+            update(OrderLink)
+            .where(OrderLink.id == order_link.id)
+            .values(is_used=True, used_at=datetime.utcnow())
+        )
+        await session.commit()
+
+        await message.answer(
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+f"🎯 Siz deep-link orqali kirdingiz!\n\n"
+            f"<b>Product ID:</b> {order_link.product_id}\n"
+            f"<b>Order Log ID:</b> {order_link.order_log_id}\n\n"
+            f"✅ Bu link endi ishlatilgan deb belgilandi."
+        )
+
+
+# 🔹 /stats — foydalanuvchi yaratgan linklar statistikasi
+@router.message(commands=["stats"])
+async def stats_handler(message: types.Message):
+    """Foydalanuvchining deep-link statistikasi"""
+    user_id = message.from_user.id
+    async for session in get_session():
+        total_links = await session.scalar(
+            select(func.count(OrderLink.id)).where(OrderLink.created_by == user_id)
+        )
+        used_links = await session.scalar(
+            select(func.count(OrderLink.id)).where(
+                OrderLink.created_by == user_id, OrderLink.is_used.is_(True)
+            )
+        )
+        active_links = total_links - used_links
+
+        # So‘nggi 5 ta linkni ko‘rsatish
+        result = await session.execute(
+            select(OrderLink)
+            .where(OrderLink.created_by == user_id)
+            .order_by(OrderLink.created_at.desc())
+            .limit(5)
+        )
+        links = result.scalars().all()
+
+        text = (
+            f"📊 <b>Sizning statistikangiz</b>\n\n"
+            f"🔹 Jami linklar: {total_links}\n"
+            f"🟢 Faol (ishlatilmagan): {active_links}\n"
+            f"🔴 Ishlatilgan: {used_links}\n\n"
+        )
+
+        if links:
+            text += "<b>🧾 So‘nggi 5 ta link:</b>\n"
+            for link in links:
+                status = "✅ Ishlatilgan" if link.is_used else "🟢 Faol"
+                text += (
+                    f"• Product {link.product_id} / Order {link.order_log_id} "
+                    f"({status})\n"
+                    f"  🕓 {link.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                )
+        else:
+            text += "Siz hali birorta link yaratmagansiz."
+
+        await message.answer(text)
+
+
+# 🔹 Botni ishga tushirish
+async def main():
+    await init_db()
+    print("✅ Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+🧠 Natijada sizda:
+Funksiya Tavsif
+/generate <product_id> <order_log_id> Bir martalik deep link yaratadi
+/start <payload> Foydalanuvchi link orqali kiradi, bot bazadan ma’lumotni topadi
+/stats Siz yaratgan barcha linklar statistikasi (jami, faol, ishlatilgan, tarix)
+📊 Misol
+/generate 101 550
+➡️ Bot javobi:
+
+✅ Bir martalik deep-link yaratildi!
+Product ID: 101
+Order Log ID: 550
+Yaratgan foydalanuvchi: 777777777
+👉 https://t.me/YourBot?start=ABcdEfGh
+Agar foydalanuvchi shu linkni bossa →
+Bot bazadan ma’lumotni olib, is_used=True, used_at=datetime.utcnow() deb belgilaydi.
+
+⚡ Kengaytirish g‘oyalari
+/stats all orqali barcha foydalanuvchilarning statistikasi (admin uchun)
+
+Har bir deep link uchun QR-kod yaratish
+
+Linkni muayyan muddatgacha faol saqlash (masalan, 24 soat)
+
+PostgreSQL yoki MySQL ga o‘tish (SQLite kichik loyihalar uchun yetarli)
+
+Xohlaysizmi, shu kodga QR-code generator (ya’ni deep linkdan avtomatik QR yaratish) funksiyasini ham qo‘shib beray?
+Bu marketing, buyurtma yoki reklama tizimlarida juda foydali bo‘ladi.
+
+You said:
+Ha buning ilojisi bormi
+ChatGPT said:
+Albatta bor! 🔥
+Siz yaratgan har bir deep-link uchun avtomatik QR-kod yaratish — juda foydali funksiya:
+
+Reklama uchun (banner, katalog, vizitka)
+
+Offline joylardan (do‘kon, event, buklet) botga tez kirish uchun
+
+Keling, mavjud bir martalik deep-link + statistika tizimiga QR-code generatorni ham qo‘shamiz.
+
+🧩 Fikr sxemasi
+Biz quyidagini qilamiz:
+
+/generate <product_id> <order_log_id> yuboriladi
+
+Bot deep-link yaratadi
+
+O‘sha linkdan QR-kod rasmini generatsiya qiladi
+
+Foydalanuvchiga QR + link yuboradi
+
+⚙️ Kerakli kutubxonalar
+Sizga qo‘shimcha kutubxona kerak bo‘ladi:
+
+pip install qrcode[pil] pillow
+⚙️ main.py — QR generatorli to‘liq kod
+Quyidagi kod sizning avvalgi bazaviy tizimga mos keladi:
+
+import asyncio
+import secrets
+from datetime import datetime
+import qrcode
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.filters import CommandStart
+from aiogram.utils.d
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+eep_linking import create_start_link, decode_payload
+from sqlalchemy import select, update, func
+from db import init_db, get_session
+from models import OrderLink
+
+TOKEN = "YOUR_BOT_TOKEN"
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+router = Router()
+dp.include_router(router)
+
+
+# 🔹 QR-code yaratish funksiyasi
+def generate_qr(link: str, filename: str) -> str:
+    """Deep linkdan QR-kod faylini yaratadi va saqlaydi"""
+    img = qrcode.make(link)
+    filepath = f"qr_codes/{filename}.png"
+
+    import os
+    os.makedirs("qr_codes", exist_ok=True)
+    img.save(filepath)
+
+    return filepath
+
+
+# 🔹 /generate — yangi deep-link + QR yaratish
+@router.message(commands=["generate"])
+async def generate_link(message: types.Message):
+    """Yangi bir martalik deep-link yaratadi va QR-kod generatsiya qiladi"""
+    args = message.text.split()
+    if len(args) < 3:
+        await message.answer("❗ Foydalanish: /generate <product_id> <order_log_id>")
+        return
+
+    product_id = int(args[1])
+    order_log_id = int(args[2])
+    created_by = message.from_user.id
+    unique_key = secrets.token_urlsafe(8)
+
+    async for session in get_session():
+        new_link = OrderLink(
+            unique_key=unique_key,
+            product_id=product_id,
+            order_log_id=order_log_id,
+            created_by=created_by,
+        )
+        session.add(new_link)
+        await session.commit()
+
+    # Deep-link yaratamiz
+    deep_link = await create_start_link(bot, unique_key, encode=True)
+
+    # QR-kod yaratamiz
+    qr_path = generate_qr(deep_link, unique_key)
+
+    # QR bilan yuboramiz
+    await message.answer_photo(
+        photo=types.FSInputFile(qr_path),
+        caption=(
+            f"✅ Bir martalik deep-link yaratildi!\n\n"
+            f"<b>Product ID:</b> {product_id}\n"
+            f"<b>Order Log ID:</b> {order_log_id}\n"
+            f"<b>Yaratgan foydalanuvchi:</b> {created_by}\n\n"
+            f"<b>Link:</b> {deep_link}"
+        ),
+    )
+
+
+# 🔹 /start <payload> — foydalanuvchi deep-link orqali kirganda
+@router.message(CommandStart(deep_link=True))
+async def start_deeplink(message: types.Message, command: CommandStart):
+    """Deep-link orqali kirish"""
+    if not command.args:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i 🙂")
+        return
+
+    decoded = decode_payload(command.args)
+    async for session in get_session():
+        result = await session.execute(select(OrderLink).where(OrderLink.unique_key == decoded))
+        order_link = result.scalar_one_or_none()
+
+        if not order_link:
+            await message.answer("⚠️ Bunday deep-link mavjud emas.")
+            return
+
+        if order_link.is_used:
+            await message.answer(
+                f"🚫 Bu link allaqachon ishlatilgan!\n\n"
+                f"<b>Product ID:</b> {order_link.product_id}\n"
+                f"<b>Order ID:</b> {order_link.order_log_id}\n"
+                f"<b>Ishlatilgan vaqt:</b> {order_link.used_at}"
+            )
+            return
+
+        # Linkni ishlatilgan deb belgilaymiz
+        await session.execute(
+            update(OrderLink)
+            .where(OrderLink.id == order_link.id)
+            .values(is_used=True, used_at=datetime.utcnow())
+        )
+        await session.commit()
+
+        await message.answer(
+            f"🎯 Siz deep-link orqali kirdingiz!\n\n"
+            f"<b>Product ID:</b> {order_link.product_id}\n"
+            f"<b>Order Log ID:</b> {order_link.order_log_id}\n"
+            f"✅ Bu link endi ishlatilgan deb belgilandi."
+        )
+
+
+# 🔹 /stats — foydalanuvchining statistikasi
+@router.message(commands=["stats"])
+async def stats_handler(message: types.Message):
+    """Foydalanuvchi yaratgan deep-linklar statistikasi"""
+    user_id = message.from_user.id
+    async for session in get_session():
+        total_links = await session.scalar(
+            select(func.count(OrderLink.id)).where(OrderLink.created_by == user_id)
+        )
+        used_links = await session.scalar(
+            select(func.count(OrderLink.id)).where(
+                OrderLink.created_by == user_id, OrderLink.is_used.is
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+_(True)
+            )
+        )
+        active_links = total_links - used_links
+
+        result = await session.execute(
+            select(OrderLink)
+            .where(OrderLink.created_by == user_id)
+            .order_by(OrderLink.created_at.desc())
+            .limit(5)
+        )
+        links = result.scalars().all()
+
+        text = (
+            f"📊 <b>Sizning statistikangiz</b>\n\n"
+            f"🔹 Jami linklar: {total_links}\n"
+            f"🟢 Faol (ishlatilmagan): {active_links}\n"
+            f"🔴 Ishlatilgan: {used_links}\n\n"
+        )
+
+        if links:
+            text += "<b>🧾 So‘nggi 5 ta link:</b>\n"
+            for link in links:
+                status = "✅ Ishlatilgan" if link.is_used else "🟢 Faol"
+                text += (
+                    f"• Product {link.product_id} / Order {link.order_log_id} ({status})\n"
+                    f"  🕓 {link.created_at.strftime('%Y-%m-%d %H:%M:%S')}\n"
+                )
+        else:
+            text += "Siz hali birorta link yaratmagansiz."
+
+        await message.answer(text)
+
+
+# 🔹 Botni ishga tushirish
+async def main():
+    await init_db()
+    print("✅ Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+📸 Natija:
+Siz yuborasiz:
+/generate 101 555
+Bot javobi:
+Sizga QR-kod rasmi (PNG fayl) yuboradi
+
+Rasm tagida:
+
+✅ Bir martalik deep-link yaratildi!
+Product ID: 101
+Order Log ID: 555
+Link: https://t.me/MyBot?start=A9BcDeFg
+Foydalanuvchi QR’ni skaner qilsa:
+Telegram avtomatik ochadi: t.me/MyBot?start=A9BcDeFg
+
+Bot ma’lumotni bazadan topadi va ishlov beradi.
+
+📊 Foyda
+✅ Har bir link uchun vizual QR yaratiladi
+✅ Offline reklama va marketingda ishlatish mumkin
+✅ QR’lar qr_codes/ papkasida saqlanadi
+✅ Barcha statistikalar (yaratilgan, ishlatilgan, sana) saqlanadi
+
+Xohlaysizmi, men sizga shunga /qr <product_id> <order_log_id> nomli maxsus buyruq qo‘shib beray, u faqat QR yaratadi (linkni yangilamasdan)?
+Bu marketing tizimlarda tez QR chiqarish uchun juda foydali.
+
+You said:
+Ha menga ikoni boʻlsa man. Py ni ichiga oʻzim qoʻshib olaman shuning uchun  uni alohida funqsiya qilib yaratib bera ver iltimos
+ChatGPT said:
+Zo‘r, juda to‘g‘ri yondashuv! 💪
+Demak, sizga faqat QR-kod yaratish funksiyasi kerak — uni main.py ichiga yoki alohida utils.py fayliga qo‘shib olasiz.
+
+Quyida siz uchun modulli, mustaqil ishlaydigan universal QR-kod generatsiya funksiyasi tayyorlab beraman.
+U deep-link uchun ikon (logo) bilan markazga joylashtirilgan professional QR yaratadi.
+
+🧠 Funksiya: generate_qr_with_logo(link: str, filename: str, logo_path: str | None = None)
+import os
+import qrcode
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from qrcode.image.styles.colormasks import RadialGradiantColorMask
+from PIL import Image
+
+def generate_qr_with_logo(link: str, filename: str, logo_path: str | None = None) -> str:
+    """
+    Deep-link uchun professional QR-kod yaratadi.
+    (markazda logo bo‘lishi mumkin)
+    
+    Parametrlar:
+        link (str): Telegram deep-link yoki istalgan URL
+        filename (str): Saqlanadigan fayl nomi (logo bo‘lmasa ham ishlaydi)
+        logo_path (str | None): markazdagi logotip (PNG/JPG)
+    
+    Natija:
+        str: Yaratilgan QR fayl yo‘li (PNG format)
+    """
+
+    # 📁 QR papkasini yaratamiz
+    os.makedirs("qr_codes", exist_ok=True)
+    qr_path = f"qr_codes/{filename}.png"
+
+    # 🔹 QR obyekt
+    qr = qrcode.QRCode(
+        version=2,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,  # yuqori aniqlik
+        box_size=12,
+        border=4,
+    )
+
+    qr.add_data(link)
+    qr.make(fit=True)
+
+    # 🔹 QR ni biroz chiroyliroq qilish (yumaloq modullar + gradient)
+    qr_img = qr.make_image(
+        image_factory=StyledPilImage,
+        module_drawer=RoundedModuleDrawer(),
+        color_mask=RadialGradiantColorMask(),
+    )
+
+    # 🔹 Agar logotip berilgan bo‘lsa — markazga joylashtiramiz
+    if logo_path and os.path.exists(logo_path):
+        logo = Image.open(logo_path)
+        qr_width, qr_height = qr_img.size
+
+        # Logoni
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+kichraytiramiz (QR o‘rtasining ~20%)
+        logo_size = qr_width // 5
+        logo = logo.resize((logo_size, logo_size))
+
+        # Markazga joylashtirish koordinatalari
+        pos = ((qr_width - logo_size) // 2, (qr_height - logo_size) // 2)
+        qr_img.paste(logo, pos, mask=logo if logo.mode == "RGBA" else None)
+
+    # 🔹 Saqlaymiz
+    qr_img.save(qr_path)
+
+    return qr_path
+🧩 Qanday ishlatish
+1️⃣ Oddiy QR (logosiz)
+link = "https://t.me/MyBot?start=ABC123"
+path = generate_qr_with_logo(link, filename="my_deeplink_qr")
+print("QR fayl saqlandi:", path)
+Natija: qr_codes/my_deeplink_qr.png
+
+2️⃣ Logoli QR (masalan, bot belgisi bilan)
+link = "https://t.me/MyBot?start=ABC123"
+path = generate_qr_with_logo(link, filename="promo_link", logo_path="logo.png")
+logo.png — bu sizning ikonangiz (100x100 yoki shunga yaqin o‘lcham tavsiya qilinadi).
+
+Agar logotip PNG formatda bo‘lsa (shaffof fon bilan), natija juda professional chiqadi.
+
+⚡ Afzalliklari
+✅ QR markazida logotip (masalan, bot belgisi yoki brend)
+✅ Yumaloq modullar va gradient — chiroyli dizayn
+✅ Faqat qrcode va Pillow kutubxonasiga tayanadi
+✅ Sizning tizimingizdagi /generate yoki /qr buyrug‘iga osongina qo‘shiladi
+
+🧩 Qo‘llanish misoli Aiogram kontekstida
+@router.message(commands=["qr"])
+async def make_qr(message: types.Message):
+    args = message.text.split()
+    if len(args) < 2:
+        await message.answer("❗ Foydalanish: /qr <deep-link>")
+        return
+
+    link = args[1]
+    path = generate_qr_with_logo(link, filename="custom_qr", logo_path="bot_icon.png")
+    await message.answer_photo(
+        photo=types.FSInputFile(path),
+        caption=f"✅ QR yaratildi:\n{link}"
+    )
+Agar xohlasangiz, men sizga shu QR funksiya bilan integratsiyalangan /qr komandasi bo‘lgan to‘liq aiogram v3 modulini ham tayyorlab beraman (tayyor import qilinadigan versiya sifatida).
+Shunday qilaymi?
+
+You said:
+Ha 
+ChatGPT said:
+Ajoyib! 🎯
+Endi sizga tayyor, modulli Aiogram v3 komponenti yozib beraman — uni loyihangizga qo‘shish kifoya.
+U sizga /qr <link> yoki /qr <product_id> <order_log_id> ko‘rinishida QR-kod yaratish imkonini beradi, markazida logo bo‘ladi, va qr_codes/ papkasida saqlanadi.
+
+📂 Tavsiya etilgan loyiha tuzilmasi
+📂 bot/
+ ├── main.py
+ ├── qr_utils.py        # QR-funksiyalar shu yerda
+ └── db.py / models.py  # avvalgidek
+⚙️ qr_utils.py — QR-kod logikasi (universal funksiya + Aiogram router)
+import os
+import qrcode
+from aiogram import Router, types
+from aiogram.filters import Command
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from qrcode.image.styles.colormasks import RadialGradiantColorMask
+from PIL import Image
+
+router = Router()
+
+
+# 🔹 QR-kod generatsiyasi (logo bilan)
+def generate_qr_with_logo(link: str, filename: str, logo_path: str | None = None) -> str:
+    """
+    Telegram deep-link yoki URL uchun professional QR-kod yaratadi.
+    markazda ixtiyoriy logotip bo‘lishi mumkin.
+    """
+    os.makedirs("qr_codes", exist_ok=True)
+    qr_path = f"qr_codes/{filename}.png"
+
+    qr = qrcode.QRCode(
+        version=2,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=12,
+        border=4,
+    )
+    qr.add_data(link)
+    qr.make(fit=True)
+
+    qr_img = qr.make_image(
+        image_factory=StyledPilImage,
+        module_drawer=RoundedModuleDrawer(),
+        color_mask=RadialGradiantColorMask(),
+    )
+
+    if logo_path and os.path.exists(logo_path):
+        logo = Image.open(logo_path)
+        qr_width, qr_height = qr_img.size
+        logo_size = qr_width // 5
+        logo = logo.resize((logo_size, logo_size))
+        pos = ((qr_width - logo_size) // 2, (qr_height - logo_size) // 2)
+        qr_img.paste(logo, pos, mask=logo if logo.mode == "RGBA" else None)
+
+    qr_img.save(qr_path)
+    return qr_path
+
+
+# 🔹 /qr buyrug‘i — oddiy deep-linkdan QR yaratadi
+@router.message(Command("qr"))
+async def qr_command(message: types.Message):
+    """
+    /qr <link>  → oddiy linkdan QR-kod
+    /qr <product_id> <order_log_id> → o‘z bot linkini generatsiya qiladi
+    """
+    args = message.text.spl
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+it(maxsplit=2)
+
+    if len(args) == 2 and args[1].startswith("http"):
+        # To‘liq link berilgan
+        link = args[1]
+        qr_path = generate_qr_with_logo(link, "manual_qr", logo_path="logo.png")
+        await message.answer_photo(
+            photo=types.FSInputFile(qr_path),
+            caption=f"✅ QR yaratildi:\n{link}"
+        )
+        return
+
+    elif len(args) == 3:
+        # Faqat product_id va order_log_id berilgan
+        product_id = args[1]
+        order_log_id = args[2]
+        bot_username = (await message.bot.me()).username
+        link = f"https://t.me/{bot_username}?start={product_id}_{order_log_id}"
+
+        qr_path = generate_qr_with_logo(link, f"qr_{product_id}_{order_log_id}", logo_path="logo.png")
+        await message.answer_photo(
+            photo=types.FSInputFile(qr_path),
+            caption=(
+                f"🧾 QR yaratildi!\n\n"
+                f"<b>Product:</b> {product_id}\n"
+                f"<b>Order:</b> {order_log_id}\n\n"
+                f"<b>Link:</b> {link}"
+            ),
+        )
+        return
+
+    else:
+        await message.answer(
+            "❗ Foydalanish:\n"
+            "/qr <to‘liq_link>\n"
+            "yoki\n"
+            "/qr <product_id> <order_log_id>"
+        )
+⚙️ main.py — integratsiya (minimal)
+import asyncio
+from aiogram import Bot, Dispatcher
+from qr_utils import router as qr_router
+
+TOKEN = "YOUR_BOT_TOKEN"
+
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+dp.include_router(qr_router)
+
+
+async def main():
+    print("🤖 Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
+🧪 Foydalanish misollari
+1️⃣ Oddiy linkdan QR
+/qr https://t.me/MyBot?start=ABC123
+➡️ Bot sizga qr_codes/manual_qr.png faylini (logoli) yuboradi.
+
+2️⃣ Product + Order ID orqali
+/qr 101 550
+➡️ Bot avtomatik:
+
+https://t.me/MyBot?start=101_550
+linkni yaratadi va logoli QR yuboradi.
+
+3️⃣ Natija
+📸 QR-kodingiz:
+
+Chiroyli yumaloq modullar bilan
+
+Markazda logo.png (masalan, bot belgisi)
+
+qr_codes/ papkasida saqlanadi
+
+✅ Qisqacha
+Xususiyat Tavsif
+generate_qr_with_logo Universal QR-generator funksiya
+/qr Aiogram v3 komandasi
+logo.png Siz istagan ikonka (PNG yoki JPG)
+Saqlash joyi qr_codes/ papkasi
+Format .png, professional dizayn
+Xohlaysizmi, bu modulgacha deep-link + QR + statistika tizimini bitta to‘liq botga integratsiya qilib, tayyor bot.py fayl holida (import tayyor, SQLAlchemy bilan) yozib beray?
+
+You said:
+Ha imkoni boricha real loyxa sifatida chunki buni oʻzim ishlayapman shu namuna sifatida 
+Ha imkoni boricha real loyxa sifatida chunki buni oʻzim ishlayapman shu namuna sifatida 
+ChatGPT said:
+Zo‘r, endi haqiqiy real loyiha ko‘rinishidagi Aiogram v3 + SQLAlchemy + QR-kodli deep-link tizimini to‘liq qilib beraman.
+Bu strukturani siz to‘g‘ridan-to‘g‘ri ishlatishingiz, kengaytirishingiz yoki tijorat loyihangizga integratsiya qilishingiz mumkin.
+Hammasi modulli: bot alohida, DB alohida, QR alohida, va routerlar soddalashgan.
+
+📦 Loyihaning to‘liq tuzilmasi
+📂 mybot/
+ ├── main.py          # Botni ishga tushirish
+ ├── db.py            # SQLAlchemy sozlamalari
+ ├── models.py        # Ma'lumotlar modeli
+ ├── handlers/
+ │    ├── generate.py # /generate va /start logikasi (deep linklar)
+ │    ├── stats.py    # /stats
+ │    └── qr_utils.py # /qr + QR funksiyasi
+ └── requirements.txt # kutubxonalar
+📋 requirements.txt
+aiogram==3.12.0
+SQLAlchemy==2.0.36
+aiosqlite
+qrcode[pil]
+pillow
+⚙️ db.py
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.orm import declarative_base
+
+DATABASE_URL = "sqlite+aiosqlite:///bot_data.db"
+
+Base = declarative_base()
+engine = create_async_engine(DATABASE_URL, echo=False)
+AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+async def get_session():
+    async with AsyncSessionLocal() as session:
+        yield session
+⚙️ models.py
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Integer, String, Boolean, DateTime
+from da
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+tetime import datetime
+from db import Base
+
+class OrderLink(Base):
+    __tablename__ = "order_links"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    unique_key: Mapped[str] = mapped_column(String, unique=True)
+    product_id: Mapped[int] = mapped_column(Integer)
+    order_log_id: Mapped[int] = mapped_column(Integer)
+    created_by: Mapped[int] = mapped_column(Integer)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+🤖 handlers/generate.py — deep-link yaratish va ishlatish
+import secrets
+from datetime import datetime
+from aiogram import Router, types, Bot
+from aiogram.filters import CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
+from sqlalchemy import select, update
+from db import get_session
+from models import OrderLink
+
+router = Router()
+
+# /generate buyrug‘i
+@router.message(commands=["generate"])
+async def generate_link(message: types.Message, bot: Bot):
+    args = message.text.split()
+    if len(args) < 3:
+        await message.answer("❗ Foydalanish: /generate <product_id> <order_log_id>")
+        return
+
+    product_id = int(args[1])
+    order_log_id = int(args[2])
+    unique_key = secrets.token_urlsafe(8)
+    created_by = message.from_user.id
+
+    async for session in get_session():
+        session.add(OrderLink(
+            unique_key=unique_key,
+            product_id=product_id,
+            order_log_id=order_log_id,
+            created_by=created_by,
+        ))
+        await session.commit()
+
+    link = await create_start_link(bot, unique_key, encode=True)
+    await message.answer(
+        f"✅ Link yaratildi:\n\n"
+        f"<b>Product:</b> {product_id}\n"
+        f"<b>Order:</b> {order_log_id}\n"
+        f"<b>Link:</b> {link}"
+    )
+
+
+# /start <payload>
+@router.message(CommandStart(deep_link=True))
+async def start_deeplink(message: types.Message, command: CommandStart):
+    payload = decode_payload(command.args)
+    async for session in get_session():
+        result = await session.execute(select(OrderLink).where(OrderLink.unique_key == payload))
+        link = result.scalar_one_or_none()
+
+        if not link:
+            await message.answer("⚠️ Bunday deep-link topilmadi.")
+            return
+        if link.is_used:
+            await message.answer("🚫 Bu link allaqachon ishlatilgan.")
+            return
+
+        await session.execute(
+            update(OrderLink)
+            .where(OrderLink.id == link.id)
+            .values(is_used=True, used_at=datetime.utcnow())
+        )
+        await session.commit()
+
+        await message.answer(
+            f"🎯 Deep-link faollashtirildi!\n\n"
+            f"<b>Product:</b> {link.product_id}\n"
+            f"<b>Order:</b> {link.order_log_id}\n"
+            f"✅ Endi ishlatilgan deb belgilandi."
+        )
+📊 handlers/stats.py — statistikalar
+from aiogram import Router, types
+from sqlalchemy import select, func
+from db import get_session
+from models import OrderLink
+
+router = Router()
+
+@router.message(commands=["stats"])
+async def user_stats(message: types.Message):
+    user_id = message.from_user.id
+    async for session in get_session():
+        total = await session.scalar(select(func.count(OrderLink.id)).where(OrderLink.created_by == user_id))
+        used = await session.scalar(select(func.count(OrderLink.id)).where(OrderLink.created_by == user_id, OrderLink.is_used.is_(True)))
+        active = total - used
+
+        text = (
+            f"📊 <b>Statistika:</b>\n"
+            f"🔹 Jami: {total}\n"
+            f"🟢 Faol: {active}\n"
+            f"🔴 Ishlatilgan: {used}\n"
+        )
+        await message.answer(text)
+📸 handlers/qr_utils.py — QR kod yaratish moduli
+import os
+import qrcode
+from aiogram import Router, types
+from aiogram.filters import Command
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
+from qrcode.image.styles.colormasks import RadialGradiantColorM
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+ask
+from PIL import Image
+
+router = Router()
+
+
+def generate_qr_with_logo(link: str, filename: str, logo_path: str | None = None) -> str:
+    """Chiroyli QR yaratish, markazida logotip bilan"""
+    os.makedirs("qr_codes", exist_ok=True)
+    path = f"qr_codes/{filename}.png"
+
+    qr = qrcode.QRCode(
+        version=2,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(link)
+    qr.make(fit=True)
+
+    qr_img = qr.make_image(
+        image_factory=StyledPilImage,
+        module_drawer=RoundedModuleDrawer(),
+        color_mask=RadialGradiantColorMask(),
+    )
+
+    if logo_path and os.path.exists(logo_path):
+        logo = Image.open(logo_path)
+        w, h = qr_img.size
+        logo = logo.resize((w // 5, w // 5))
+        pos = ((w - w // 5) // 2, (h - w // 5) // 2)
+        qr_img.paste(logo, pos, mask=logo if logo.mode == "RGBA" else None)
+
+    qr_img.save(path)
+    return path
+
+
+@router.message(Command("qr"))
+async def qr_command(message: types.Message):
+    """
+    /qr <to‘liq_link> yoki
+    /qr <product_id> <order_log_id>
+    """
+    args = message.text.split(maxsplit=2)
+    if len(args) == 2 and args[1].startswith("http"):
+        link = args[1]
+        path = generate_qr_with_logo(link, "manual_qr", logo_path="logo.png")
+        await message.answer_photo(types.FSInputFile(path), caption=link)
+        return
+
+    elif len(args) == 3:
+        product_id, order_log_id = args[1], args[2]
+        username = (await message.bot.me()).username
+        link = f"https://t.me/{username}?start={product_id}_{order_log_id}"
+        path = generate_qr_with_logo(link, f"qr_{product_id}_{order_log_id}", logo_path="logo.png")
+        await message.answer_photo(
+            types.FSInputFile(path),
+            caption=f"🧾 Product: {product_id}\nOrder: {order_log_id}\n\n{link}"
+        )
+        return
+
+    await message.answer("❗ Foydalanish: /qr <link> yoki /qr <product_id> <order_log_id>")
+🚀 main.py — botni ishga tushirish
+import asyncio
+from aiogram import Bot, Dispatcher
+from db import init_db
+from handlers import generate, stats, qr_utils
+
+TOKEN = "YOUR_BOT_TOKEN"
+
+bot = Bot(token=TOKEN, parse_mode="HTML")
+dp = Dispatcher()
+
+# Routerlarni ulamiz
+dp.include_router(generate.router)
+dp.include_router(stats.router)
+dp.include_router(qr_utils.router)
+
+
+async def main():
+    await init_db()
+    print("🤖 Bot ishga tushdi...")
+    await dp.start_polling(bot)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+💡 Qisqacha ishlash jarayoni
+Buyruq Natija
+/generate 101 555 Yangi deep-link yaratadi va bazaga yozadi
+/start <payload> Link orqali kirganda uni ishlatilgan deb belgilaydi
+/stats Foydalanuvchi statistikasi
+/qr 101 555 Product va Order uchun QR yaratadi
+/qr https://t.me/... To‘liq linkdan QR yaratadi
+🧱 Qo‘shimcha tavsiyalar
+logo.png faylni loyihaning ildiziga qo‘ying (masalan, bot logosi 256×256 px).
+
+Keyinchalik siz OrderLink jadvaliga:
+
+expiry_time (muddati),
+
+scan_count (necha marta bosilgan),
+
+ref_user_id (kim foydalangan)
+
+kabi ustunlar qo‘shib, tizimni kengaytirishingiz mumkin.
+
+Agar xohlasangiz, keyingi bosqichda shu loyihaga:
+
+🔐 JWT tokenli admin panel (FastAPI bilan),
+
+📈 Statistika dashboard (grafiklar bilan),
+
+🧾 Excel eksport (foydalanuvchi va link hisobotlari)
+
+qo‘shib beraman.
+Shunday qilaymi — sizga to‘liq real CRM-bot tizimi sifatida?
+
+You said:
+Menga qoʻshimcha maslaxatlaringni barcha barchasini qoʻshib bera olasanmi 
+ChatGPT said:
+Albatta! 🚀
+Endi sizga to‘liq real loyiha darajasidagi Telegram bot arxitekturasini tayyorlab beraman — bu:
+
+✅ Aiogram v3 (asenkron, modulli)
+✅ SQLAlchemy (ORM, async)
+✅ Deep-link tizimi (bir martalik, kuzatuvli)
+✅ QR-kod generatsiyasi (logo bilan)
+✅ Statistika
+✅ Admin panel (FastAPI + JWT token)
+✅ Dashboard (grafik ko‘rinishida)
+✅ Excel eksport (hisobotlar)
+
+Boshqacha aytganda — bu real CRM / marketing bot tizimi uchun asos.
+Men sizga loyiha tuzilmasi + backend API + bot logikasini bitta tizim sifatida tushuntiraman.
+Keling, bosqichma-bosqich ketaylik 👇
+
+🧩 1. Loyihaning umumiy tuzilmasi
+📂 mycrm_bot/
+ ├── bot/
+ │
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+├── main.py             # Telegram botni ishga tushiradi
+ │    ├── db.py               # SQLAlchemy ulanishi
+ │    ├── models.py           # ORM modellari
+ │    └── handlers/
+ │         ├── generate.py     # /generate + /start
+ │         ├── stats.py        # /stats
+ │         └── qr_utils.py     # /qr + logo bilan QR funksiyasi
+ │
+ ├── web/
+ │    ├── main.py             # FastAPI server (admin panel uchun)
+ │    ├── auth.py             # JWT avtorizatsiya
+ │    ├── routes/
+ │    │     ├── dashboard.py   # grafiklar, API statistikasi
+ │    │     ├── export.py      # Excel hisobot
+ │    │     └── orders.py      # linklarni boshqarish
+ │    └── templates/
+ │          └── dashboard.html # front-end (Jinja2)
+ │
+ ├── .env                     # TOKEN, DATABASE_URL, ADMIN_LOGIN
+ ├── requirements.txt
+ └── run_all.sh               # Bot + API birgalikda ishga tushirish
+📋 2. requirements.txt
+aiogram==3.12.0
+SQLAlchemy==2.0.36
+aiosqlite
+fastapi
+uvicorn
+jinja2
+python-multipart
+qrcode[pil]
+pillow
+openpyxl
+python-jose[cryptography]
+pandas
+⚙️ 3. .env (config)
+BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN
+DATABASE_URL=sqlite+aiosqlite:///bot_data.db
+ADMIN_USER=admin
+ADMIN_PASS=admin123
+JWT_SECRET=supersecretkey
+JWT_ALGORITHM=HS256
+🧱 4. Bot tomoni (aiogram)
+Sizda bu qism oldingi versiyada allaqachon bor (generate.py, stats.py, qr_utils.py).
+Ular baza bilan ishlaydi va OrderLink modelidan foydalanadi.
+Biz ularga endi qo‘shimcha ustunlar qo‘shamiz:
+
+# models.py
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Integer, String, Boolean, DateTime
+from datetime import datetime
+from db import Base
+
+class OrderLink(Base):
+    __tablename__ = "order_links"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    unique_key: Mapped[str] = mapped_column(String, unique=True)
+    product_id: Mapped[int] = mapped_column(Integer)
+    order_log_id: Mapped[int] = mapped_column(Integer)
+    created_by: Mapped[int] = mapped_column(Integer)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False)
+    scan_count: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    expiry_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+👉 Endi sizda:
+
+scan_count — necha marta QR yoki link bosilgan
+
+expiry_at — tugash muddati (bir martalik emas, muddatli ham bo‘lishi mumkin)
+
+🧰 5. FastAPI Admin panel (web/main.py)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from web.routes import dashboard, orders, export, auth
+
+app = FastAPI(title="CRM Bot Admin Panel")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 🔗 Marshrutlarni ulaymiz
+app.include_router(auth.router, prefix="/auth", tags=["Auth"])
+app.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
+app.include_router(orders.router, prefix="/orders", tags=["Orders"])
+app.include_router(export.router, prefix="/export", tags=["Export"])
+
+@app.get("/")
+async def home():
+    return {"message": "Admin API ishlayapti 🚀"}
+🔐 6. web/auth.py — JWT login tizimi
+import os
+from datetime import datetime, timedelta
+from fastapi import APIRouter, HTTPException, Form
+from jose import jwt
+
+router = APIRouter()
+SECRET_KEY = os.getenv("JWT_SECRET", "secret")
+ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+
+@router.post("/login")
+async def login(username: str = Form(...), password: str = Form(...)):
+    if username != os.getenv("ADMIN_USER") or password != os.getenv("ADMIN_PASS"):
+        raise HTTPException(status_code=401, detail="Noto‘g‘ri login yoki parol")
+    token = jwt.encode({"sub": username, "exp": datetime.utcnow() + timedelta(hours=2)}, SECRET_KEY, algorithm=ALGORITHM)
+    return {"access_token": token, "token_type": "bearer"}
+📊 7. web/routes/dashboard.py — statistikalar (API)
+from fastapi import APIRouter
+from sqlalchemy import select, func
+from db import AsyncSessionLo
+
+Otaboyev Sardorbek, [05.11.2025 12:15]
+cal
+from models import OrderLink
+
+router = APIRouter()
+
+@router.get("/")
+async def get_dashboard():
+    async with AsyncSessionLocal() as session:
+        total = await session.scalar(select(func.count(OrderLink.id)))
+        used = await session.scalar(select(func.count(OrderLink.id)).where(OrderLink.is_used.is_(True)))
+        active = total - used
+        return {"total": total, "used": used, "active": active}
+🧾 8. web/routes/export.py — Excelga eksport
+import pandas as pd
+from fastapi import APIRouter, Response
+from sqlalchemy import select
+from db import AsyncSessionLocal
+from models import OrderLink
+from io import BytesIO
+
+router = APIRouter()
+
+@router.get("/links")
+async def export_links():
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(OrderLink))
+        data = [row.__dict__ for row in result.scalars().all()]
+        df = pd.DataFrame(data)
+        buffer = BytesIO()
+        df.to_excel(buffer, index=False)
+        buffer.seek(0)
+        headers = {
+            "Content-Disposition": "attachment; filename=links.xlsx"
+        }
+        return Response(buffer.read(), headers=headers, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+📈 9. web/routes/orders.py — linklarni ko‘rish
+from fastapi import APIRouter
+from sqlalchemy import select
+from db import AsyncSessionLocal
+from models import OrderLink
+
+router = APIRouter()
+
+@router.get("/")
+async def get_links():
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(OrderLink))
+        return [row.__dict__ for row in result.scalars().all()]
+📊 10. web/templates/dashboard.html — oddiy front-end (grafik bilan)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CRM Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h2>📊 CRM Bot Statistikasi</h2>
+<canvas id="chart" width="400" height="200"></canvas>
+<script>
+async function loadData() {
+  const res = await fetch("/dashboard");
+  const data = await res.json();
+  const ctx = document.getElementById("chart");
+  new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Faol", "Ishlatilgan"],
+      datasets: [{
+        data: [data.active, data.used],
+        backgroundColor: ["#4CAF50", "#FF5252"]
+      }]
+    }
+  });
+}
+loadData();
+</script>
+</body>
+</html>
+🧠 11. run_all.sh — bitta buyruq bilan ishga tushirish
+#!/bin/bash
+echo "🚀 Bot va API birgalikda ishga tushmoqda..."
+python3 bot/main.py & uvicorn web.main:app --host 0.0.0.0 --port 8000
+✅ Yakuniy natija
+Funksiya Joylashgan Tavsif
+/generate Telegram bot Deep-link yaratadi
+/start <payload> Telegram bot Foydalanuvchini kuzatadi
+/stats Telegram bot Statistikani chiqaradi
+/qr Telegram bot QR-kod (logo bilan) yaratadi
+/auth/login FastAPI JWT login
+/dashboard FastAPI Statistik API + HTML
+/orders FastAPI Linklar ro‘yxati
+/export/links FastAPI Excel hisobot
+run_all.sh — Bot + API parallel ishlaydi
+Bu tizim — real CRM yoki affiliate tracking bot uchun tayyor platforma.
+Siz unga quyidagilarni bemalol qo‘shishingiz mumkin:
+
+📆 Har bir link uchun muddatli aktivlik (expiry_at)
+
+👥 Foydalanuvchi referal tizimi (ref_user_id)
+
+📈 Grafiklarda vaqt oralig‘iga qarab tahlil
+
+🧾 Avtomatik PDF hisobot (Fpdf2 orqali)
+
+Xohlaysizmi, men sizga shu loyihaning to‘liq ZIP arxivi ko‘rinishida (tayyor kod bilan) yaratib beray?
+Shunda siz faqat .env faylni to‘ldirib, bash run_all.sh deb ishga tushirasiz.
+ ha
