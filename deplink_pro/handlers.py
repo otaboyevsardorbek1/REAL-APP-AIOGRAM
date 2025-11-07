@@ -1,11 +1,12 @@
-# handlers.py (yangilangan - barcha matnlar html.escape orqali yuboriladi)
 import os
 import datetime
 import html
 from aiogram import Bot, types
 from aiogram.filters import Command, CommandStart
+from aiogram.utils.deep_linking import create_start_link, decode_payload
 from aiogram.types import FSInputFile
 from sqlalchemy import select
+import json
 from db import AsyncSessionLocal
 from models import OrderLink
 from utils import make_token, encode_payload, decode_payload, generate_qr_image
@@ -13,11 +14,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 ADMIN_IDS = [int(x) for x in os.getenv('ADMIN_IDS', '').split(',') if x.strip()]
-
-# NOTE:
-# - All user visible plain-text messages are passed through html.escape(...)
-# - We do not escape binary/photo sends (FSInputFile) because those are file uploads.
-# - If you use explicit HTML formatting (e.g., <b>, <a href="...">), do NOT escape those parts.
 
 async def handle_generate(message: types.Message):
     # only admin allowed
@@ -42,14 +38,15 @@ async def handle_generate(message: types.Message):
         await session.refresh(ol)
 
     payload = encode_payload(unique_key)
+    
     bot_username = (await message.bot.get_me()).username
     link = f"https://t.me/{bot_username}?start={payload}"
     # create QR
     qrfn = f"qr_{unique_key}.png"
     qrpath = generate_qr_image(link, qrfn, logo_path=None)
     # escape the message that includes the link (to avoid parse errors)
-    await message.answer(html.escape(f"Link yaratildi: {link}"))
-    await message.answer_photo(photo=FSInputFile(qrpath))
+    caption_info=f"<a href='{link}'>QR kodini referal_linki</a>"
+    await message.answer_photo(photo=FSInputFile(qrpath), caption=html.escape(caption_info))
 
 
 async def handle_start(message: types.Message, command: CommandStart):
@@ -110,3 +107,43 @@ async def handle_qr(message: types.Message):
     qrfn = f"qr_{unique_key}.png"
     qrpath = generate_qr_image(link, qrfn, logo_path=None)
     await message.answer_photo(photo=FSInputFile(qrpath))
+ # demo deplink demo
+async def generate_deeplink_pro(message: types.Message):
+    """Foydalanuvchi uchun murakkab deep-link yaratish"""
+    # Murakkab ma'lumot (JSON shaklida)
+    payload = {
+        "ref_id": message.from_user.id,
+        "plan": "admin",
+        "lang": f"{message.from_user.language_code}",
+        "reg":"2024-09-23",
+        "end":"2025-11-08"}
+
+    # JSON stringga aylantiramiz
+    payload_str = json.dumps(payload)
+
+    # Deep link yaratamiz
+    link = await create_start_link(Bot, payload_str, encode=True)
+    await message.answer(f"Mana sizning murakkab deep-linkingiz:\n\n{link}")
+
+# demo dep link pro get info
+async def start_handler_pro(message: types.Message, command: CommandStart):
+    """Foydalanuvchi deep-link orqali kirganda"""
+    if command.args:
+        try:
+            # Base64 decode
+            decoded = decode_payload(command.args)
+            # JSON ni Python dict ga parse qilamiz
+            data = json.loads(decoded)
+
+            await message.answer(
+                "<b>Siz deep-link orqali kirdingiz!</b>\n\n"
+                f"<b>Ref ID:</b> {data.get('ref_id')}\n"
+                f"<b>Tarif:</b> {data.get('plan')}\n"
+                f"<b>Til:</b> {data.get('lang')}\n"
+                f"<b>Ro'yxatdan o'tgan sana:</b> {data.get('reg')}\n"
+                f"<b>Shartnoma tugash sanasi:</b/> {data.get('end')}"
+            )
+        except Exception as e:
+            await message.answer(f"Xatolik: {e}")
+    else:
+        await message.answer("Salom! Bu oddiy /start buyrug‘i 🙂")
