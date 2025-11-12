@@ -3,7 +3,7 @@ import asyncio
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
-from aiogram.client.default import DefaultBotProperties
+from aiogram.client.default import DefaultBotProperties # type: ignore
 
 from config import TOKEN
 from app.database.models import create_table

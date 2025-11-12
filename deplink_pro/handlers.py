@@ -53,9 +53,8 @@ async def handle_start(message: types.Message, command: CommandStart):
     # `/start` with payload
     payload = command.args or ''
     if not payload:
-        await message.reply(html.escape("Salom! Bu botga xush kelibsiz."))
-        return
-
+        return await message.reply(html.escape("Salom! Bu botga xush kelibsiz."))
+    
     unique_key = decode_payload(payload)
     async with AsyncSessionLocal() as session:
         q = select(OrderLink).where(OrderLink.unique_key == unique_key)
