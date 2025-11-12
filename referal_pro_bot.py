@@ -8,17 +8,16 @@ from datetime import datetime
 from typing import Optional, List
 
 # Windows asyncio policy fix
-#if sys.platform.startswith("win"):
- #   asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-# load .env if exists
 from dotenv import load_dotenv
 load_dotenv()
 
 # Aiogram
 from aiogram import Bot, Dispatcher, types, F, Router
 from aiogram.filters import Command, CommandStart
-from aiogram.client.default import DefaultBotProperties
+from aiogram.client.default import DefaultBotProperties # type: ignore
 from aiogram.types import Message, FSInputFile, InlineKeyboardMarkup, InlineKeyboardButton, BotCommandScopeChat
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.exceptions import TelegramUnauthorizedError
@@ -56,7 +55,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///referrals.db")
 LEVEL_REWARDS = {1: 100.0, 2: 50.0, 3: 25.0, 4: 10.0, 5: 5.0}
 MAX_REWARD_LEVEL = max(LEVEL_REWARDS.keys())
 
-MAX_TREE_DEPTH = int(os.getenv("MAX_TREE_DEPTH", "7"))
+MAX_TREE_DEPTH = int(os.getenv("MAX_TREE_DEPTH", "10"))
 
 # -----------------------
 # DB SETUP
@@ -78,7 +77,7 @@ class User(Base):
     blocked = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-class Message(Base):
+class message(Base):
     __tablename__ = "messages"
     id = Column(Integer, primary_key=True)
     sender_telegram_id = Column(Integer, nullable=False)
@@ -356,13 +355,13 @@ async def notify_owners_shutdown():
         except Exception:
             logger.exception("notify owners shutdown failed")
 
-async def error_handler(update: types.Update, exception: Exception):
-    logger.exception("Error: %s", exception)
-    for owner in ALL_OWNER_IDS:
-        try:
-            await bot.send_message(owner, f"❗ Xato yuz berdi:\n{exception}\nUpdate: {update}")
-        except Exception:
-            pass
+# async def error_handler(update: types.Update, exception: Exception):
+#     logger.exception("Error: %s", exception)
+#     for owner in ALL_OWNER_IDS:
+#         try:
+#             await bot.send_message(owner, f"❗ Xato yuz berdi:\n{exception}\nUpdate: {update}")
+#         except Exception:
+#             pass
 
 # -----------------------
 # PUBLIC HANDLERS
@@ -783,7 +782,7 @@ async def main():
         return
 
     # Keyin handlerlarni registratsiya qilamiz
-    dp.errors.register(error_handler)
+    # dp.errors.register(error_handler)
     dp.startup.register(create_db)
     dp.startup.register(notify_owners_startup)
     dp.shutdown.register(notify_owners_shutdown)

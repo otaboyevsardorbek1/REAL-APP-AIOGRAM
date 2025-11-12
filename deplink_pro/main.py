@@ -4,7 +4,6 @@ from aiogram.filters import Command, CommandStart
 from dotenv import load_dotenv
 from db import init_db
 from handlers import handle_generate, handle_start, handle_stats, handle_qr
-from aiogram import F
 
 load_dotenv()
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -22,7 +21,6 @@ dp.message.register(handle_qr, Command(commands=['qr']))
 
 async def main():
     await init_db()
-    print("Bot starting...")
     await dp.start_polling(bot)
 
 if __name__ == '__main__':
